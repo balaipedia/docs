@@ -1,0 +1,24 @@
+---
+title: "Authentication"
+description: "Authenticate API requests with your Bearer API key."
+---
+
+Send your key as a Bearer token. Keys look like `bpk_xxxxxxxx_...`. We email your key to you when your account is created.
+
+```http
+Authorization: Bearer bpk_xxxxxxxx_your_secret_key
+```
+
+The header `X-API-Key: bpk_...` is also accepted as an alternative.
+
+<Warning>
+  The API key is for this API only. Our Telegram bot does **not** use it: the bot has its own one-time bot code (`bpt_...`, in the same email), so never send your API key to the bot.
+</Warning>
+
+## Lost or leaked keys
+
+If you lose the key or it leaks, ask us to generate a new one: we email it to you and the old key stops working immediately. Your Telegram bot access is not affected.
+
+## IP restriction
+
+Optional: we can restrict your key to specific server IP addresses. Ask support.

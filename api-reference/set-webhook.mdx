@@ -1,0 +1,38 @@
+---
+title: "Set webhook"
+description: "Set your webhook URL (or rotate its secret)."
+api: "POST https://orders.balaipedia.com/v1/webhook"
+---
+
+Returns the webhook with a new signing `secret` (shown only once). POST again to change the URL or rotate the secret.
+
+A webhook URL must be a public `https` URL on port 443 with a hostname (no IP addresses, no credentials in the URL). See [Webhooks](/webhooks) for events and signature verification.
+
+## Body
+
+<ParamField body="url" type="string" required>
+  Your public HTTPS endpoint, e.g. `https://example.com/hooks/orders`.
+</ParamField>
+
+<Note>
+  Existing integrations that still call `PUT /webhook` or `DELETE /webhook` keep working, but new integrations should use the `POST` calls.
+</Note>
+
+<RequestExample>
+
+```bash curl
+curl -X POST https://orders.balaipedia.com/v1/webhook \
+  -H "Authorization: Bearer YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"url":"https://example.com/hooks/orders"}'
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200 OK
+{"object":"webhook","url":"https://example.com/hooks/orders","enabled":true,"secret":"whsec_...","note":"Store this secret now. It is shown only once; POST again to rotate it."}
+```
+
+</ResponseExample>

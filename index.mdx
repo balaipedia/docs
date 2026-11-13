@@ -1,20 +1,55 @@
 ---
-title: "Introduction"
-description: "Welcome to your project"
+title: "Reseller API v1"
+sidebarTitle: "Overview"
+description: "Place and track Canva Pro team invitation orders programmatically."
 ---
 
-Write a short description of your product here. What it does, who it's for, and what they can accomplish with it.
+## Overview
 
-<Tip>
-  Ready to make this your own? Start by editing this page. Update your `docs.json` file to customize your site. Then fill out the [Quickstart](/quickstart) page.
-</Tip>
+Base URL: `https://orders.balaipedia.com/v1`. All requests and responses are JSON over HTTPS (plain HTTP is not available). Send `Content-Type: application/json` on requests with a body. Timestamps are ISO 8601 UTC. Amounts are in your account currency. Only `GET` and `POST` are used.
 
-<Card title="Quickstart" icon="rocket" href="/quickstart">
-  This card links to the quickstart page in your project.
-</Card>
-<Card title="Components" icon="puzzle-piece" href="https://mintlify.com/docs/components">
-  Add cards, callouts, steps, tabs, and more to design and structure your pages.
-</Card>
-<Card title="Settings" icon="gear" href="https://mintlify.com/docs/organize/settings">
-  Set your site name, branding, and navigation in the `docs.json` file.
-</Card>
+<Warning>
+  The API is for **server-to-server** use only. Never put your API key in browser or mobile app code.
+</Warning>
+
+## Endpoints at a glance
+
+| # | Method | Path | What it does |
+| --- | --- | --- | --- |
+| 1 | `POST` | [`/orders`](/api-reference/create-order) | Create an order (sends the invitation). |
+| 2 | `GET` | [`/orders/{id}`](/api-reference/get-order) | Get the status of one order. |
+| 3 | `GET` | [`/orders`](/api-reference/list-orders) | List and filter your orders. |
+| 4 | `GET` | [`/balance`](/api-reference/get-balance) | Your credit balance and price per order. |
+| 5 | `GET` | [`/transactions`](/api-reference/list-transactions) | Top-ups, charges, refunds and adjustments. |
+| 6 | `POST` | [`/webhook`](/api-reference/set-webhook) | Set your webhook URL (or rotate its secret). |
+| 7 | `GET` | [`/webhook`](/api-reference/get-webhook) | Read the current webhook setting. |
+| 8 | `POST` | [`/webhook/disable`](/api-reference/disable-webhook) | Remove your webhook. |
+| 9 | `POST` | [`/webhook/test`](/api-reference/test-webhook) | Send a test event to your webhook. |
+| 10 | `GET` | [`/ping`](/api-reference/ping) | Health check (no authentication). |
+
+## Response conventions
+
+- **Every response from the API is JSON**, including errors, unknown URLs and wrong HTTP methods. Responses carry an `X-Request-Id` header (same value as `request_id` in error bodies). The only HTML page is the documentation.
+- **Platform failures.** In rare cases a failure can happen before your request reaches our application (for example a gateway or network outage). Such a `5xx` response may not be JSON. Always check the HTTP status first and parse the body only if it is JSON. Treat any `5xx` or network timeout as retryable (see [Retries](/errors#retries)).
+- Success responses return the object directly (no wrapper). Error responses always return `{"error":{"code","message","request_id"}}` (see [Errors](/errors)); branch on `code`, never on `message`.
+- Fields documented as _nullable_ are always present and are `null` when there is no value yet (for example `completed_at` on an order that is still processing). Fields are never omitted or `undefined`.
+- Responses contain only information about your own orders and account. No internal or third-party system details are ever included.
+- CORS is not enabled: call the API from your server, not from a browser.
+
+<Columns cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Create your first order.
+  </Card>
+
+  <Card title="Authentication" icon="key" href="/authentication">
+    Authenticate with your API key.
+  </Card>
+
+  <Card title="Webhooks" icon="webhook" href="/webhooks">
+    Receive order status changes.
+  </Card>
+
+  <Card title="Errors and limits" icon="triangle-exclamation" href="/errors">
+    Error codes, rate limits and retries.
+  </Card>
+</Columns>

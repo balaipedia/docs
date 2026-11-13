@@ -1,0 +1,11 @@
+---
+title: "Data retention"
+description: "Orders can be retrieved for 60 days only."
+---
+
+**Orders can be retrieved for 60 days only.** Order history is cleaned up automatically: an order older than 60 days is no longer returned by `GET /orders` or `GET /orders/{id}` (you get `404 not_found`), and its status can no longer be checked.
+
+- Save every order **in your own database** when you create it (our order `id` together with your own reference).
+- Update your copy from [webhooks](/webhooks), or by polling, until the order reaches a final status. Store the final `status`, `note` and `completed_at` yourself.
+- Do not rely on us for old orders or for reporting beyond 60 days. Export what you need before then.
+- Your credit balance and `GET /transactions` are not affected by this cleanup.

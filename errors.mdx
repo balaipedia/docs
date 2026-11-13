@@ -1,0 +1,34 @@
+---
+title: "Errors and limits"
+description: "HTTP status codes, error codes, rate limits and retry rules."
+---
+
+Errors use standard HTTP status codes and this body. Quote `request_id` when contacting support.
+
+```json
+{"error":{"code":"insufficient_credit","message":"...","request_id":"req_..."}}
+```
+
+| HTTP | code | Meaning / what to do |
+|------|------|----------------------|
+| 400 | `invalid_json`, `invalid_request` | Malformed JSON, a missing or wrongly typed field, or an invalid query value. Fix the request. Do not retry unchanged. |
+| 401 | `unauthorized` | Missing or wrong API key. |
+| 402 | `insufficient_credit` | Top up your balance. Response includes `balance`, `required` and `currency`. |
+| 403 | `account_disabled`, `ip_not_allowed` | Contact support. |
+| 404 | `not_found` | Unknown order, an order older than 60 days, or unknown URL. All endpoints live under `https://orders.balaipedia.com/v1`. |
+| 405 | `method_not_allowed` | The URL exists but not for this HTTP method. The `Allow` header lists the valid methods. |
+| 409 | `duplicate_order`, `request_in_progress` | Duplicate email (see `allow_duplicate`) or an order for it is still being processed; or the same Idempotency-Key is still running. Retry in a few seconds. |
+| 413 | `payload_too_large` | Request body larger than 20 KB. |
+| 422 | `email_rejected`, `idempotency_conflict` | Address failed validation (see `reason`), not charged; or the Idempotency-Key was reused with a different email. |
+| 429 | `rate_limited`, `too_many_failed_attempts` | Wait for `Retry-After` seconds. Default limit: 60 requests/minute. Repeated wrong API keys from one IP are blocked for up to 15 minutes. |
+| 500 | `internal_error` | Unexpected error. Retry later with the same Idempotency-Key. If it persists, contact support with the `request_id`. |
+| 503 | `temporarily_unavailable`, `service_unavailable` | We could not process the request right now. Not charged. `temporarily_unavailable` always includes a `Retry-After: 30` header: wait that many seconds, then retry with the same Idempotency-Key. |
+
+Optional extra fields on some errors: `reason`, `note` and `suggestion` (`422`), `balance`, `required` and `currency` (`402`).
+
+## Retries
+
+- **Retry** on a network error or timeout, on `429` (wait `Retry-After`), on `409 request_in_progress`, and on any `5xx`. This includes a `5xx` whose body is not JSON (for example a gateway error page): in that case check only the HTTP status.
+- **Always reuse the same `Idempotency-Key`** and the same email when retrying `POST /orders`. You get the original order back and are never charged twice.
+- Use a growing delay between attempts (for example 1s, 2s, 4s, up to a few minutes) and stop after a reasonable number of tries.
+- **Do not retry unchanged** other `4xx` errors: fix the request first.

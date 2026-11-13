@@ -1,0 +1,24 @@
+---
+title: "Test webhook"
+description: "Send a test event to your webhook."
+api: "POST https://orders.balaipedia.com/v1/webhook/test"
+---
+
+Sends a `webhook.test` event to your URL and returns `{"delivered":true}` or `{"delivered":false}`. Returns `400 invalid_request` if no webhook is configured.
+
+<RequestExample>
+
+```bash curl
+curl -X POST https://orders.balaipedia.com/v1/webhook/test \
+  -H "Authorization: Bearer YOUR_KEY"
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200 OK
+{"delivered":true}
+```
+
+</ResponseExample>

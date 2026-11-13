@@ -1,0 +1,22 @@
+---
+title: "Remove webhook"
+description: "Remove your webhook."
+api: "POST https://orders.balaipedia.com/v1/webhook/disable"
+---
+
+<RequestExample>
+
+```bash curl
+curl -X POST https://orders.balaipedia.com/v1/webhook/disable \
+  -H "Authorization: Bearer YOUR_KEY"
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200 OK
+{"object":"webhook","url":null,"enabled":false}
+```
+
+</ResponseExample>

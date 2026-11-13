@@ -1,0 +1,156 @@
+---
+title: "Create order"
+description: "Create an order and send the invitation."
+api: "POST https://orders.balaipedia.com/v1/orders"
+---
+
+Headers: `Authorization`, `Content-Type: application/json`, and `Idempotency-Key` (8-64 chars, e.g. a UUID).
+
+<Note>
+  Always send an `Idempotency-Key` header. If a request times out, repeat it with the same key and the same email: you get the same order back (header `Idempotent-Replayed: true`) and are never charged twice. Keys are remembered for 24 hours. Reusing a key with a different email returns `422 idempotency_conflict`.
+</Note>
+
+## Headers
+
+<ParamField header="Idempotency-Key" type="string" required>
+  8-64 chars, e.g. a UUID. Store it with your order so a retry reuses it.
+</ParamField>
+
+## Body
+
+<ParamField body="email" type="string" required>
+  Buyer's email. One address per order.
+</ParamField>
+
+<ParamField body="name" type="string">
+  Optional. Used in the greeting (max 60 chars).
+</ParamField>
+
+<ParamField body="lang" type="string" default="en">
+  `"en"` | `"id"`. Language of the email sent to the buyer: English or Indonesian. Default `"en"`. Any other value is rejected with `400`. This is independent of your account currency.
+</ParamField>
+
+<ParamField body="reference" type="string">
+  Your own order reference (max 64). Returned in responses and webhooks; searchable via the list endpoint.
+</ParamField>
+
+<ParamField body="allow_duplicate" type="boolean">
+  `true` or `false` only. By default an email that received an invitation in the last 30 days is refused with `409`. Set true to send again (charged). Re-sending is only allowed when the earlier invitation was one of your own orders; otherwise it is still refused with `409`.
+</ParamField>
+
+## Response
+
+Returns the [order object](/api-reference/get-order#the-order-object) with status `201 Created`, plus `balance`: your balance after the charge.
+
+## Rejected by validation, `422` (nothing charged)
+
+```json
+{"error":{"code":"email_rejected","message":"The email address was rejected by validation. No credit was charged.","reason":"mailbox_full","note":"The recipient's mailbox is full.","request_id":"req_..."}}
+```
+
+`reason` is a stable code you can branch on; `note` is a short human-readable explanation you can log or show.
+
+| reason | Meaning |
+|--------|---------|
+| `invalid_format` | Not a valid email format. |
+| `typo_domain` | Likely typo in the domain; `suggestion` may contain the corrected address. |
+| `domain_no_mail` | Domain does not exist or does not accept email. |
+| `mailbox_not_found` | The mailbox does not exist. |
+| `mailbox_full` | The recipient's inbox is full. |
+| `disposable_email` | Temporary / disposable email service. |
+| `address_undeliverable` | This address previously failed or is on our block list. |
+| `high_risk` | Flagged as risky (spam trap, abuse, do-not-mail). |
+| `invalid_email` | Other validation failure. |
+
+Other errors for this endpoint: `400` (bad JSON or field), `402` (balance too low), `409` (duplicate email or request still running), `413`, `429`, `503`. See [Errors](/errors).
+
+<RequestExample>
+
+```bash curl
+curl -X POST https://orders.balaipedia.com/v1/orders \
+  -H "Authorization: Bearer YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: 6f1c2f7e-9a4b-4d0e-8f3a-1b2c3d4e5f60" \
+  -d '{"email":"buyer@gmail.com","name":"Budi","lang":"en","reference":"ORD-10293"}'
+```
+
+```javascript Node.js
+// Node 18+
+const key = require("crypto").randomUUID();   // store it with your order so a retry reuses it
+const res = await fetch("https://orders.balaipedia.com/v1/orders", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer " + process.env.BP_API_KEY,
+    "Content-Type": "application/json",
+    "Idempotency-Key": key
+  },
+  body: JSON.stringify({ email: "buyer@gmail.com", name: "Budi", lang: "en", reference: "ORD-10293" })
+});
+const text = await res.text();
+let data = null;
+try { data = JSON.parse(text); } catch (e) {}   // a 5xx from the platform may not be JSON
+if (res.status === 201) { /* save data.id with your own order */ }
+else if (res.status >= 500 || data === null) { /* retry later with the SAME key */ }
+else { /* data.error.code tells you what to fix */ }
+```
+
+```php PHP
+<?php
+$ch = curl_init("https://orders.balaipedia.com/v1/orders");
+curl_setopt_array($ch, [
+  CURLOPT_POST => true,
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_TIMEOUT => 30,
+  CURLOPT_HTTPHEADER => [
+    "Authorization: Bearer " . getenv("BP_API_KEY"),
+    "Content-Type: application/json",
+    "Idempotency-Key: " . $key,   // e.g. a UUID you stored with your order
+  ],
+  CURLOPT_POSTFIELDS => json_encode(["email" => "buyer@gmail.com", "name" => "Budi", "lang" => "en", "reference" => "ORD-10293"]),
+]);
+$body = curl_exec($ch);
+$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+$data = json_decode((string)$body, true);   // null when the body is not JSON (retry with the same key)
+```
+
+```python Python
+import os, uuid, requests
+
+key = str(uuid.uuid4())   # store it with your order so a retry reuses it
+r = requests.post(
+    "https://orders.balaipedia.com/v1/orders",
+    headers={"Authorization": "Bearer " + os.environ["BP_API_KEY"], "Idempotency-Key": key},
+    json={"email": "buyer@gmail.com", "name": "Budi", "lang": "en", "reference": "ORD-10293"},
+    timeout=30,
+)
+try: data = r.json()
+except ValueError: data = None   # a 5xx from the platform may not be JSON: retry with the same key
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 201 Created
+{
+  "id": "BP-7K3M9QXA",
+  "object": "order",
+  "email": "buyer@gmail.com",
+  "reference": "ORD-10293",
+  "status": "processing",
+  "note": null,
+  "created_at": "2026-11-12T03:10:00.000Z",
+  "completed_at": null,
+  "expires_at": "2026-12-12",
+  "amount": 0.15,
+  "currency": "USD",
+  "refunded": false,
+  "balance": 42.2
+}
+```
+
+```json 422 Rejected
+{"error":{"code":"email_rejected","message":"The email address was rejected by validation. No credit was charged.","reason":"mailbox_full","note":"The recipient's mailbox is full.","request_id":"req_..."}}
+```
+
+</ResponseExample>

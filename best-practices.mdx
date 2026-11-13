@@ -1,0 +1,12 @@
+---
+title: "Best practices"
+description: "Recommendations for a reliable integration."
+---
+
+- Always send an `Idempotency-Key` on `POST /orders`; reuse it when retrying.
+- Store our order `id` next to your own order. Use `reference` to link them. Keep your own copy of every order and its final status: we only keep them retrievable for 60 days.
+- Use [webhooks](/webhooks) as the primary source of status; poll only as a fallback.
+- Check the HTTP status before parsing the body, and handle a non-JSON `5xx` as retryable.
+- Read `currency` from responses instead of assuming it.
+- Treat unknown fields in responses as additive: we may add new fields without notice.
+- Keep the API key and webhook secret in server-side secret storage.

@@ -1,7 +1,7 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mintlify Starter Kit",
+  "name": "Balai Pedia",
   "colors": {
     "primary": "#16A34A",
     "light": "#07C983",
@@ -14,40 +14,61 @@
         "group": "Getting Started",
         "pages": [
           "index",
-          "quickstart"
+          "quickstart",
+          "authentication",
+          "currency-and-credit"
+        ]
+      },
+      {
+        "group": "Guides",
+        "pages": [
+          "webhooks",
+          "data-retention",
+          "errors",
+          "best-practices"
+        ]
+      },
+      {
+        "group": "Orders",
+        "pages": [
+          "api-reference/create-order",
+          "api-reference/get-order",
+          "api-reference/list-orders"
+        ]
+      },
+      {
+        "group": "Account",
+        "pages": [
+          "api-reference/get-balance",
+          "api-reference/list-transactions"
+        ]
+      },
+      {
+        "group": "Webhook endpoints",
+        "pages": [
+          "api-reference/set-webhook",
+          "api-reference/get-webhook",
+          "api-reference/disable-webhook",
+          "api-reference/test-webhook"
+        ]
+      },
+      {
+        "group": "Utility",
+        "pages": [
+          "api-reference/ping"
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
+    ]
   },
   "logo": {
     "light": "/logo/light.svg",
     "dark": "/logo/dark.svg"
   },
   "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:support@mintlify.com"
-      }
-    ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "https://app.mintlify.com"
+      "label": "Support",
+      "href": "https://t.me/balaipedia"
     }
   },
   "contextual": {
@@ -64,9 +85,15 @@
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "telegram": "https://t.me/balaipedia"
+    }
+  },
+  "api": {
+    "mdx": {
+      "auth": {
+        "method": "bearer"
+      },
+      "server": "https://orders.balaipedia.com/v1"
     }
   }
 }

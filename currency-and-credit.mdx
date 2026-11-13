@@ -1,0 +1,27 @@
+---
+title: "Currency and credit"
+description: "Account currency, amount formats and how credit is charged."
+---
+
+## Currency
+
+Every account has exactly one currency, `USD` or `IDR`. It is chosen when your account is created and cannot be changed afterwards. All monetary values (`balance`, `price_per_order`, `amount`, `required`) are in that currency, and every response that contains money also contains a `currency` field.
+
+| Currency | Format | Example |
+|----------|--------|---------|
+| USD | 2 decimals | `0.15` = 15 cents |
+| IDR | whole rupiah, no decimals | `2500` = Rp 2.500 |
+
+Amounts are JSON numbers, not strings. Do not hard-code a currency symbol: read `currency` from the response.
+
+<Note>
+  Examples in this documentation use `USD`. Your real currency is set on your account and is returned as `currency` in every response.
+</Note>
+
+## Credit and pricing
+
+You top up a credit balance in your account currency. Each order costs your agreed price per order, deducted when the order is accepted.
+
+- If an email address is **rejected by validation** (invalid, mailbox full, disposable, etc.) the request fails with `422`, no order is created and **no credit is charged**.
+- If we cannot process an order for an internal reason (`503`), no credit is charged either.
+- If your balance is too low, the request fails with `402`.

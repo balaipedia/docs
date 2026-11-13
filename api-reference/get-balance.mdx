@@ -1,0 +1,24 @@
+---
+title: "Get balance"
+description: "Your credit balance and price per order."
+api: "GET https://orders.balaipedia.com/v1/balance"
+---
+
+Your current credit balance and your price per order, in your account currency. See [Currency and credit](/currency-and-credit).
+
+<RequestExample>
+
+```bash curl
+curl https://orders.balaipedia.com/v1/balance \
+  -H "Authorization: Bearer YOUR_KEY"
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200 OK
+{"object":"balance","balance":42.35,"currency":"USD","price_per_order":0.15}
+```
+
+</ResponseExample>

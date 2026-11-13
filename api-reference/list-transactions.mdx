@@ -1,0 +1,40 @@
+---
+title: "List transactions"
+description: "Top-ups, charges, refunds and adjustments."
+api: "GET https://orders.balaipedia.com/v1/transactions"
+---
+
+Top-ups, charges, refunds and adjustments, newest first. Your credit balance and transactions are not affected by the order data cleanup.
+
+## Query parameters
+
+<ParamField query="limit" type="integer" default="20">
+  1-100, default 20.
+</ParamField>
+
+<ParamField query="cursor" type="integer">
+  Pass the `next_cursor` of the previous page. An invalid cursor returns `400`.
+</ParamField>
+
+## Response
+
+`type` is one of `topup`, `charge`, `refund`, `adjustment`. Charges are negative numbers. `order_id` is nullable (top-ups have no order).
+
+<RequestExample>
+
+```bash curl
+curl "https://orders.balaipedia.com/v1/transactions?limit=20" \
+  -H "Authorization: Bearer YOUR_KEY"
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200 OK
+{"object":"list","has_more":false,"next_cursor":null,"data":[
+  {"id":581,"type":"charge","amount":-0.15,"balance_after":42.2,"currency":"USD","order_id":"BP-7K3M9QXA","created_at":"2026-11-12T03:10:00.000Z"}
+]}
+```
+
+</ResponseExample>

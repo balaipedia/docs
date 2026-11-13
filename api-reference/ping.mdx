@@ -1,0 +1,24 @@
+---
+title: "Health check"
+description: "Health check (no authentication)."
+api: "GET https://orders.balaipedia.com/v1/ping"
+authMethod: "none"
+---
+
+No authentication required.
+
+<RequestExample>
+
+```bash curl
+curl https://orders.balaipedia.com/v1/ping
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200 OK
+{"ok":true,"time":"2026-11-12T03:10:00.000Z"}
+```
+
+</ResponseExample>
