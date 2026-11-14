@@ -17,8 +17,12 @@ curl https://orders.balaipedia.com/v1/balance \
 
 <ResponseExample>
 
-```json 200 OK
+```json 200 OK (USD)
 {"object":"balance","balance":42.35,"currency":"USD","price_per_order":0.15}
+```
+
+```json 200 OK (IDR)
+{"object":"balance","balance":0,"currency":"IDR","price_per_order":2500}
 ```
 
 </ResponseExample>
