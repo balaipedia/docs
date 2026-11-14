@@ -67,8 +67,8 @@
     ]
   },
   "logo": {
-    "light": "/logo/balai-pedia-logo.png",
-    "dark": "/logo/balai-pedia-logo.png"
+    "light": "/logo/balai-pedia-logo-cropped.svg",
+    "dark": "/logo/balai-pedia-logo-cropped.svg"
   },
   "navbar": {
     "primary": {
