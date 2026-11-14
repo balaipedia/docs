@@ -60,7 +60,7 @@ Returns the [order object](/api-reference/get-order#the-order-object) with statu
 | `typo_domain` | Likely typo in the domain; `suggestion` may contain the corrected address. |
 | `domain_no_mail` | Domain does not exist or does not accept email. |
 | `mailbox_not_found` | The mailbox does not exist. |
-| `mailbox_full` | The recipient's inbox is full. |
+| `mailbox_full` | The recipient's inbox is full. Not a permanent block: ask the recipient to free up space and retry the same order after 3 hours. |
 | `disposable_email` | Temporary / disposable email service. |
 | `address_undeliverable` | This address previously failed or is on our block list. |
 | `high_risk` | Flagged as risky (spam trap, abuse, do-not-mail). |
