@@ -66,7 +66,24 @@ Returns the [order object](/api-reference/get-order#the-order-object) with statu
 | `high_risk` | Flagged as risky (spam trap, abuse, do-not-mail). |
 | `invalid_email` | Other validation failure. |
 
-Other errors for this endpoint: `400` (bad JSON or field), `402` (balance too low), `409` (duplicate email or request still running), `413`, `429`, `503`. See [Errors](/errors).
+## Other failure responses
+
+Every failure uses the same body, `{"error":{"code","message","request_id"}}`. Branch on `code`, not on `message`. A failed request never creates an order. Credit is charged only on `201`.
+
+| HTTP | code | Example body | What to do |
+| --- | --- | --- | --- |
+| 400 | `invalid_request` | `{"error":{"code":"invalid_request","message":"Only one email address per order.","request_id":"req_..."}}` | One email per request: no bulk, no list, and no comma-, semicolon- or space-separated addresses. Other messages: `"email" is required.`, `"email" must be a string.`, `"lang" must be "id" or "en".`, `"allow_duplicate" must be a boolean.`, `Request body must be a JSON object.`, `Idempotency-Key must be 8-64 chars (letters, digits, _ . : -).` Fix the request, do not retry unchanged. |
+| 400 | `invalid_json` | `{"error":{"code":"invalid_json","message":"Request body must be valid JSON.","request_id":"req_..."}}` | Send valid JSON with `Content-Type: application/json`. |
+| 401 | `unauthorized` | `{"error":{"code":"unauthorized","message":"Missing or invalid API key.","request_id":"req_..."}}` | Check the `Authorization: Bearer ...` header and the key. |
+| 402 | `insufficient_credit` | `{"error":{"code":"insufficient_credit","message":"Your credit balance is too low for this order.","balance":0,"required":0.15,"currency":"USD","request_id":"req_..."}}` | Top up, then send the request again. Nothing was charged. |
+| 409 | `duplicate_order` | `{"error":{"code":"duplicate_order","message":"This email already received an invitation recently. Set \"allow_duplicate\": true to send again (charged).","request_id":"req_..."}}` | The same email was ordered recently. Send `"allow_duplicate": true` only if you really want to send (and be charged) again. Some duplicates cannot be re-sent at all and need support. |
+| 409 | `request_in_progress` | `{"error":{"code":"request_in_progress","message":"A request with this Idempotency-Key is still being processed.","request_id":"req_..."}}` | Wait a few seconds and send the same request with the same key again. |
+| 422 | `email_rejected` | see above | Not charged. Ask the buyer for a correct address. |
+| 422 | `idempotency_conflict` | `{"error":{"code":"idempotency_conflict","message":"This Idempotency-Key was already used with a different email.","request_id":"req_..."}}` | Use a new key for a different email. |
+| 429 | `rate_limited` | `{"error":{"code":"rate_limited","message":"Too many requests. Slow down.","request_id":"req_..."}}` | Wait for the number of seconds in the `Retry-After` header, then retry. |
+| 503 | `temporarily_unavailable` | `{"error":{"code":"temporarily_unavailable","message":"We could not process this order right now. No credit was charged. Please retry shortly.","request_id":"req_..."}}` | Header `Retry-After: 30`. Retry after that, with the same `Idempotency-Key` if you sent one. |
+
+Other statuses (`403`, `404`, `405`, `413`, `500`) are listed under [Errors](/errors).
 
 <RequestExample>
 

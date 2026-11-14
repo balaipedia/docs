@@ -26,6 +26,29 @@ Errors use standard HTTP status codes and this body. Quote `request_id` when con
 
 Optional extra fields on some errors: `reason`, `note` and `suggestion` (`422`), `balance`, `required` and `currency` (`402`).
 
+## Failures by endpoint
+
+All endpoints except `/ping` can return `401 unauthorized`, `403 account_disabled` or `ip_not_allowed`, `429` and `5xx`. Examples:
+
+```text
+401  {"error":{"code":"unauthorized","message":"Missing or invalid API key.","request_id":"req_..."}}
+403  {"error":{"code":"account_disabled","message":"This account is disabled. Please contact support.","request_id":"req_..."}}
+403  {"error":{"code":"ip_not_allowed","message":"Requests from this IP address are not allowed.","request_id":"req_..."}}
+429  {"error":{"code":"too_many_failed_attempts","message":"Too many failed authentication attempts. Try again later.","request_id":"req_..."}}
+```
+
+| Endpoint | Specific failures |
+| --- | --- |
+| `POST /orders` | See [Create order](/api-reference/create-order#other-failure-responses): `400`, `402`, `409`, `422`, `503`. |
+| `GET /orders/{id}` | `404 not_found`: `{"error":{"code":"not_found","message":"Order not found. Orders older than 60 days are no longer available.","request_id":"req_..."}}`. Orders of other accounts are also reported as not found. |
+| `GET /orders` | `400 invalid_request` for an unknown `status` filter (`Unknown "status" filter.`) or a bad `cursor` (`Invalid "cursor". Use the next_cursor value from the previous page.`). |
+| `GET /balance` | Only the common failures above. |
+| `GET /transactions` | `400 invalid_request` for a bad `cursor`. |
+| `POST /webhook` | `400 invalid_request`: `"url" must be a public https URL on port 443 (no IP addresses).` |
+| `POST /webhook/test` | `400 invalid_request`: `No webhook configured.` Set a webhook first. |
+| `GET /webhook`, `POST /webhook/disable` | Only the common failures above. |
+| Any URL | `404 not_found` (unknown path) or `405 method_not_allowed` (the `Allow` header lists valid methods). Unknown paths never return HTML. |
+
 ## Retries
 
 - **Retry** on a network error or timeout, on `429` (wait `Retry-After`), on `409 request_in_progress`, and on any `5xx`. This includes a `5xx` whose body is not JSON (for example a gateway error page): in that case check only the HTTP status.

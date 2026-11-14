@@ -1,0 +1,48 @@
+---
+title: "Telegram bot"
+description: "Order and check your account from our Telegram bot, separate from the API."
+---
+
+Besides the API you can order and check your account from our Telegram bot. It is optional and separate from the API: the bot does **not** use `/v1` and never needs your API key. Orders from the bot use the same balance, price, validation and duplicate rules as the API, and appear in the same order list and transactions (marked as coming from the bot).
+
+## Connect
+
+<Steps>
+  <Step title="Send your bot code">
+    Open the bot link we send you, or open the bot and send the one-time bot code (`bpt_...`) that we emailed you. The code works once and expires 24 hours after it is created.
+  </Step>
+  <Step title="Check your account">
+    The bot greets you by name and shows your balance, price per order and remaining quota.
+  </Step>
+  <Step title="Lost the code?">
+    Ask support for a new one. To switch account send `/keluar` (or `/logout`) first.
+  </Step>
+</Steps>
+
+<Warning>
+  **Never send your API key (`bpk_...`) to the bot.** If you do, the bot deletes your message and warns you; ask support for a new key if it may have been seen by others.
+</Warning>
+
+## Ordering
+
+- Send buyer emails in the chat, **one per line, up to 5 per message**. Each email is validated and charged separately, exactly like one API order. More than 5 is refused.
+- Optional buyer name: add a line `nama: Budi` (or `name: Budi`) when sending a single email.
+- Send an Order ID (for example `BP-7K3M9QXA`) to see that order's status. Only your own orders are found.
+- If an email was ordered recently, the bot says so and offers **Send again** (charged) or **Cancel**. Pressing a button twice never creates two orders.
+- If your balance is too low the order is not created and the bot shows a button to contact the admin for a top-up.
+- Bot requests count toward the same rate limit as API requests.
+
+## Commands and buttons
+
+| Command | Button | What it does |
+| --- | --- | --- |
+| `/menu` (also `/start`, `/help`) | Menu | Main menu with your balance and quota. |
+| `/riwayat` (`/history`) | Riwayat / History | Your recent orders and their status. |
+| `/saldo` (`/balance`) | Saldo / Balance | Balance and latest transactions. |
+| `/bahasa` (`/language`) | Bahasa / Language | Choose the bot language and the language of the email sent to buyers. |
+| `/batal` (`/cancel`) |  | Cancel the current action. |
+| `/keluar` (`/logout`) |  | Sign out and remove the keyboard. |
+
+The button keyboard stays visible and you can hide or show it with the keyboard icon next to the message box. Any other `/command` is answered with "Unknown command" followed by the menu. A message that is not a command and contains no valid email is answered with "No email detected. Send buyer emails, one per line."
+
+Bot messages follow your bot-language setting (Indonesian or English). It is separate from the language of the email your buyer receives.

@@ -57,6 +57,12 @@
         "pages": [
           "api-reference/ping"
         ]
+      },
+      {
+        "group": "Telegram bot",
+        "pages": [
+          "telegram-bot"
+        ]
       }
     ]
   },
