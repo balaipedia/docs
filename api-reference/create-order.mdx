@@ -4,7 +4,7 @@ description: "Create an order and send the invitation."
 api: "POST https://orders.balaipedia.com/v1/orders"
 ---
 
-Headers: `Authorization` and `Content-Type: application/json` (required), and `Idempotency-Key` (optional, recommended).
+Headers: `Authorization: Bearer YOUR_KEY` and `Content-Type: application/json` (required), and `Idempotency-Key` (optional, recommended).
 
 <Note>
   The `Idempotency-Key` header is optional, but we strongly recommend sending it on every `POST /orders` so the same order is never created twice. When a request times out or the connection drops you cannot know whether the order was created. Repeat the request with the same key and the same email: you get the same order back (header `Idempotent-Replayed: true`) and are never charged twice. Keys are remembered for 24 hours. Reusing a key with a different email returns `422 idempotency_conflict`.

@@ -59,7 +59,7 @@ Returns one order created within the last 60 days (see [Data retention](/data-re
 </ResponseField>
 
 <ResponseField name="refunded" type="boolean">
-  Whether the charge was refunded.
+  Whether the charge was refunded. Only an `error` order can be refunded; a `success` order is never refunded or changed afterwards.
 </ResponseField>
 
 <ResponseField name="balance" type="number">
@@ -74,6 +74,8 @@ Returns one order created within the last 60 days (see [Data retention](/data-re
 | `processing` | Accepted; waiting for delivery confirmation. | No |
 | `success` | The invitation email was accepted by the recipient's mail server. (It does not mean the buyer has already joined.) | Yes |
 | `error` | The invitation could not be delivered, for any reason. We handle the cause on our side; check `refunded` to see whether the charge was returned. | Yes |
+
+`success` and `error` are **final**. Once an order reaches one of them its status never changes again, and you receive exactly one final event for it. Only `pending` and `processing` orders can still move on, and they end as `success` or `error`. If we find a problem with an order after it was reported as `success`, we handle it with you and the buyer directly; the order itself stays unchanged.
 
 There are only these four statuses. Every failure is reported as `error`, and `note` tells you why, so an order never fails without an explanation:
 

@@ -5,16 +5,16 @@ description: "Receive an event whenever an order changes status, and verify its 
 
 Instead of polling, register an HTTPS endpoint (public host, port 443). We POST an event whenever an order changes status. A webhook URL must be a public `https` URL on port 443 with a hostname (no IP addresses, no credentials in the URL).
 
-| # | Method | URL | What it does |
-|---|--------|-----|--------------|
-| 6 | `POST` | [`/webhook`](/api-reference/set-webhook) | Set your webhook URL (or rotate its secret). |
-| 7 | `GET` | [`/webhook`](/api-reference/get-webhook) | Read the current webhook setting. |
-| 8 | `POST` | [`/webhook/disable`](/api-reference/disable-webhook) | Remove your webhook. |
-| 9 | `POST` | [`/webhook/test`](/api-reference/test-webhook) | Send a test event to your webhook. |
+| # | Method | URL | Body | Response |
+| --- | --- | --- | --- | --- |
+| 6 | `POST` | [`/webhook`](/api-reference/set-webhook) | `{"url":"https://..."}` | The webhook with a new signing `secret` (shown only once). POST again to change the URL or rotate the secret. |
+| 7 | `GET` | [`/webhook`](/api-reference/get-webhook) | none | `{"object":"webhook","url":"https://...","enabled":true}` (`url` is `null` and `enabled` `false` when none is set). |
+| 8 | `POST` | [`/webhook/disable`](/api-reference/disable-webhook) | none | `{"object":"webhook","url":null,"enabled":false}` |
+| 9 | `POST` | [`/webhook/test`](/api-reference/test-webhook) | none | Sends a `webhook.test` event to your URL and returns `{"delivered":true}` or `{"delivered":false}`. `400 invalid_request` if no webhook is configured. |
 
 ## Events and payload
 
-Events: `order.pending`, `order.success`, `order.error` (one per status change, named after the new status). The `data` object is the [order](/api-reference/get-order#the-order-object), including `amount` and `currency`.
+Events: `order.pending`, `order.success`, `order.error` (one per status change, named after the new status). After `order.success` or `order.error` no further event is sent for that order. The `data` object is the [order](/api-reference/get-order#the-order-object), including `amount` and `currency`.
 
 ```http
 POST https://example.com/hooks/orders
@@ -64,4 +64,4 @@ def verify(raw: bytes, ts: str, sig: str, secret: str) -> bool:
 
 ## Delivery and retries
 
-Respond with any `2xx` within 8 seconds. Otherwise we retry with increasing delays (up to 6 attempts over roughly a day). Retries reuse the same event `id`, so deduplicate on it. Delivery order is not guaranteed; treat the `status` in the payload as the current state, or fetch the order to confirm.
+Respond with any `2xx` within 8 seconds. Otherwise we retry with increasing delays (up to 6 attempts over roughly a day). Retries reuse the same event `id`, so deduplicate on it. Delivery order is not guaranteed; if events arrive out of order, ignore an `order.pending` that comes after a final `order.success` or `order.error`, or fetch the order to confirm.
