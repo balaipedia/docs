@@ -1,0 +1,28 @@
+---
+title: "Get balance"
+description: "Saldo kredit dan harga per order Anda."
+api: "GET https://orders.balaipedia.com/v1/balance"
+---
+
+Saldo kredit saat ini dan harga per order Anda, dalam mata uang akun. Lihat [Mata uang dan kredit](/id/currency-and-credit).
+
+<RequestExample>
+
+```bash curl
+curl https://orders.balaipedia.com/v1/balance \
+  -H "Authorization: Bearer YOUR_KEY"
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200 OK (USD)
+{"object":"balance","balance":42.35,"currency":"USD","price_per_order":0.15}
+```
+
+```json 200 OK (IDR)
+{"object":"balance","balance":0,"currency":"IDR","price_per_order":2500}
+```
+
+</ResponseExample>

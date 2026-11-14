@@ -1,0 +1,50 @@
+---
+title: "Daftar order"
+description: "Daftar dan filter order Anda."
+api: "GET https://orders.balaipedia.com/v1/orders"
+---
+
+Terbaru pertama. Hanya order dari 60 hari terakhir yang dikembalikan.
+
+## Parameter query
+
+<ParamField query="limit" default="20" type="integer">
+  1-100, default 20. Nilai di atas 100 dibatasi menjadi 100.
+</ParamField>
+
+<ParamField query="cursor" type="integer">
+  Kirimkan `next_cursor` dari halaman sebelumnya. Cursor yang tidak valid mengembalikan `400`.
+</ParamField>
+
+<ParamField query="status" type="string">
+  Salah satu dari `pending`, `processing`, `success`, `error`. Nilai yang tidak dikenal mengembalikan `400`.
+</ParamField>
+
+<ParamField query="reference" type="string">
+  Hanya order dengan referensi persis ini.
+</ParamField>
+
+<ParamField query="email" type="string">
+  Hanya order untuk email pembeli ini.
+</ParamField>
+
+## Paginasi
+
+Kirimkan `next_cursor` sebagai `cursor` untuk mendapatkan halaman berikutnya. `next_cursor` adalah `null` saat `has_more` bernilai false. Saat tidak ada yang cocok, Anda mendapatkan `{"object":"list","data":[],"has_more":false,"next_cursor":null}`.
+
+<RequestExample>
+
+```bash curl
+curl "https://orders.balaipedia.com/v1/orders?status=error&limit=50" \
+  -H "Authorization: Bearer YOUR_KEY"
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200 OK
+{"object":"list","data":[ ...orders... ],"has_more":true,"next_cursor":1234}
+```
+
+</ResponseExample>

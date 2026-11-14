@@ -1,0 +1,49 @@
+---
+title: "Quickstart"
+description: "Periksa saldo Anda, buat order pertama, dan lacak statusnya."
+---
+
+<Steps>
+  <Step title="Dapatkan API key Anda">
+    Kami mengirimkan key Anda (`bpk_xxxxxxxx_...`) melalui email ketika akun Anda dibuat. Simpan di secret storage server-side. Lihat [Autentikasi](/id/authentication).
+  </Step>
+  <Step title="Periksa saldo Anda">
+    ```bash
+    curl https://orders.balaipedia.com/v1/balance \
+      -H "Authorization: Bearer YOUR_KEY"
+    ```
+
+    <CodeGroup>
+
+    ```json USD
+    {"object":"balance","balance":42.35,"currency":"USD","price_per_order":0.15}
+    ```
+
+    ```json IDR
+    {"object":"balance","balance":0,"currency":"IDR","price_per_order":2500}
+    ```
+
+    </CodeGroup>
+  </Step>
+  <Step title="Buat order">
+    Kami merekomendasikan mengirimkan header `Idempotency-Key` (opsional; 8-64 karakter, misalnya UUID) agar percobaan ulang tidak pernah membuat order yang sama dua kali.
+
+    ```bash
+    curl -X POST https://orders.balaipedia.com/v1/orders \
+      -H "Authorization: Bearer YOUR_KEY" \
+      -H "Content-Type: application/json" \
+      -H "Idempotency-Key: 6f1c2f7e-9a4b-4d0e-8f3a-1b2c3d4e5f60" \
+      -d '{"email":"buyer@gmail.com","name":"Budi","lang":"en","reference":"ORD-10293"}'
+    ```
+
+    Simpan `id` yang dikembalikan (misalnya `BP-7K3M9QXA`) bersama order Anda sendiri. Lihat [Create order](/id/api-reference/create-order).
+  </Step>
+  <Step title="Lacak status">
+    Daftarkan [webhook](/id/webhooks) untuk menerima perubahan status, atau polling [Get order status](/id/api-reference/get-order) sebagai fallback.
+
+    ```bash
+    curl https://orders.balaipedia.com/v1/orders/BP-7K3M9QXA \
+      -H "Authorization: Bearer YOUR_KEY"
+    ```
+  </Step>
+</Steps>

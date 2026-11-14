@@ -1,0 +1,11 @@
+---
+title: "Retensi data"
+description: "Order hanya dapat diambil selama 60 hari."
+---
+
+**Order hanya dapat diambil selama 60 hari.** Riwayat order dibersihkan secara otomatis: order yang lebih dari 60 hari tidak lagi dikembalikan oleh `GET /orders` atau `GET /orders/{id}` (Anda mendapatkan `404 not_found`), dan statusnya tidak dapat lagi diperiksa.
+
+- Simpan setiap order **di database Anda sendiri** saat Anda membuatnya (id order kami bersama dengan referensi Anda sendiri).
+- Perbarui salinan Anda dari [webhook](/id/webhooks), atau dengan polling, hingga order mencapai status final. Simpan `status`, `note`, dan `completed_at` final Anda sendiri.
+- Jangan mengandalkan kami untuk order lama atau untuk pelaporan di luar 60 hari. Ekspor apa yang Anda butuhkan sebelum waktu tersebut.
+- Saldo kredit Anda dan `GET /transactions` tidak terpengaruh oleh pembersihan ini.

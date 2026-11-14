@@ -1,0 +1,57 @@
+---
+title: "Error dan batasan"
+description: "Kode status HTTP, kode error, batasan rate, dan aturan percobaan ulang."
+---
+
+Error menggunakan kode status HTTP standar dan body ini. Cantumkan `request_id` saat menghubungi support.
+
+```json
+{"error":{"code":"insufficient_credit","message":"...","request_id":"req_..."}}
+```
+
+| HTTP | code | Arti / apa yang harus dilakukan |
+| --- | --- | --- |
+| 400 | `invalid_json`, `invalid_request` | JSON tidak terbentuk dengan benar, field yang hilang atau tipe salah, atau nilai query yang tidak valid. Perbaiki request. Jangan coba ulang tanpa perubahan. |
+| 401 | `unauthorized` | API key hilang atau salah. |
+| 402 | `insufficient_credit` | Isi ulang saldo Anda. Respons mencakup `balance`, `required`, dan `currency`. |
+| 403 | `account_disabled`, `ip_not_allowed` | Hubungi support. |
+| 404 | `not_found` | Order tidak dikenal, order yang lebih dari 60 hari, atau URL tidak dikenal. Semua endpoint berada di bawah `https://orders.balaipedia.com/v1`. |
+| 405 | `method_not_allowed` | URL ada tetapi tidak untuk HTTP method ini. Header `Allow` mencantumkan method yang valid. |
+| 409 | `duplicate_order`, `request_in_progress` | Email duplikat (lihat `allow_duplicate`) atau order untuknya masih diproses; atau Idempotency-Key yang sama masih berjalan. Coba ulang dalam beberapa detik. |
+| 413 | `payload_too_large` | Body request lebih besar dari 20 KB. |
+| 422 | `email_rejected`, `idempotency_conflict` | Alamat gagal validasi (lihat `reason`), tidak dikenakan biaya; atau Idempotency-Key digunakan kembali dengan email yang berbeda. |
+| 429 | `rate_limited`, `too_many_failed_attempts` | Tunggu selama `Retry-After` detik. Batas default: 60 request/menit. API key yang salah berulang kali dari satu IP diblokir hingga 15 menit. |
+| 500 | `internal_error` | Error tak terduga. Coba ulang nanti (dengan Idempotency-Key yang sama jika Anda mengirimkannya). Jika berlanjut, hubungi support dengan `request_id`. |
+| 503 | `temporarily_unavailable`, `service_unavailable` | Kami tidak dapat memproses request saat ini. Tidak dikenakan biaya. `temporarily_unavailable` selalu menyertakan header `Retry-After: 30`: tunggu selama detik tersebut, lalu coba ulang (dengan Idempotency-Key yang sama jika Anda mengirimkannya). |
+
+Field tambahan opsional pada beberapa error: `reason`, `note`, dan `suggestion` (`422`), `balance`, `required`, dan `currency` (`402`).
+
+## Kegagalan per endpoint
+
+Semua endpoint kecuali `/ping` dapat mengembalikan `401 unauthorized`, `403 account_disabled` atau `ip_not_allowed`, `429`, dan `5xx`. Contoh:
+
+```text
+401  {"error":{"code":"unauthorized","message":"Missing or invalid API key.","request_id":"req_..."}}
+403  {"error":{"code":"account_disabled","message":"This account is disabled. Please contact support.","request_id":"req_..."}}
+403  {"error":{"code":"ip_not_allowed","message":"Requests from this IP address are not allowed.","request_id":"req_..."}}
+429  {"error":{"code":"too_many_failed_attempts","message":"Too many failed authentication attempts. Try again later.","request_id":"req_..."}}
+```
+
+| Endpoint | Kegagalan spesifik |
+| --- | --- |
+| `POST /orders` | Lihat [Buat order](/id/api-reference/create-order#respons-kegagalan-lainnya): `400`, `402`, `409`, `422`, `503`. |
+| `GET /orders/{id}` | `404 not_found`: `{"error":{"code":"not_found","message":"Order not found. Orders older than 60 days are no longer available.","request_id":"req_..."}}`. Order dari akun lain juga dilaporkan sebagai not found. |
+| `GET /orders` | `400 invalid_request` untuk filter `status` yang tidak dikenal (`Unknown "status" filter.`) atau `cursor` yang buruk (`Invalid "cursor". Use the next_cursor value from the previous page.`). |
+| `GET /balance` | Hanya kegagalan umum di atas. |
+| `GET /transactions` | `400 invalid_request` untuk `cursor` yang buruk. |
+| `POST /webhook` | `400 invalid_request`: `"url" must be a public https URL on port 443 (no IP addresses).` |
+| `POST /webhook/test` | `400 invalid_request`: `No webhook configured.` Atur webhook terlebih dahulu. |
+| `GET /webhook`, `POST /webhook/disable` | Hanya kegagalan umum di atas. |
+| URL apa pun | `404 not_found` (path tidak dikenal) atau `405 method_not_allowed` (header `Allow` mencantumkan method yang valid). Path tidak dikenal tidak pernah mengembalikan HTML. |
+
+## Percobaan ulang
+
+- **Coba ulang** pada error jaringan atau timeout, pada `429` (tunggu `Retry-After`), pada `409 request_in_progress`, dan pada `5xx` apa pun. Ini mencakup `5xx` yang body-nya bukan JSON (misalnya halaman error gateway): dalam hal itu periksa hanya status HTTP.
+- Jika Anda mengirim `Idempotency-Key` (direkomendasikan), **gunakan kembali key yang sama** dan email yang sama saat mencoba ulang `POST /orders`. Anda mendapatkan order asli kembali dan tidak pernah dikenakan biaya dua kali. Tanpa key, kami tidak dapat membedakan percobaan ulang dari request baru.
+- Gunakan penundaan yang meningkat antar percobaan (misalnya 1s, 2s, 4s, hingga beberapa menit) dan berhenti setelah jumlah percobaan yang wajar.
+- **Jangan coba ulang tanpa perubahan** error `4xx` lainnya: perbaiki request terlebih dahulu.

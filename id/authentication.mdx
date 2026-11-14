@@ -1,0 +1,24 @@
+---
+title: "Autentikasi"
+description: "Autentikasi request API dengan Bearer API key Anda."
+---
+
+Kirimkan key Anda sebagai Bearer token. Key terlihat seperti `bpk_xxxxxxxx_...`. Kami mengirimkan key Anda melalui email ketika akun Anda dibuat.
+
+```http
+Authorization: Bearer bpk_xxxxxxxx_your_secret_key
+```
+
+Header `X-API-Key: bpk_...` juga diterima sebagai alternatif.
+
+<Warning>
+  API key ini hanya untuk API ini. Telegram bot kami **tidak** menggunakannya: bot memiliki kode bot satu kali pakai sendiri (`bpt_...`, di email yang sama), jadi jangan pernah mengirimkan API key Anda ke bot. Lihat [Telegram bot](/id/telegram-bot).
+</Warning>
+
+## Key hilang atau bocor
+
+Jika Anda kehilangan key atau key bocor, minta kami untuk membuat yang baru: kami mengirimkannya melalui email dan key lama berhenti berfungsi seketika. Akses Telegram bot Anda tidak terpengaruh.
+
+## Pembatasan IP
+
+Opsional: kami dapat membatasi key Anda ke alamat IP server tertentu. Hubungi support.

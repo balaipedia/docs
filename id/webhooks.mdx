@@ -1,0 +1,67 @@
+---
+title: "Webhook"
+description: "Terima event setiap kali order berubah status, dan verifikasi signature-nya."
+---
+
+Daripada polling, daftarkan endpoint HTTPS (host publik, port 443). Kami POST event setiap kali order berubah status. URL webhook harus berupa URL `https` publik pada port 443 dengan hostname (tidak boleh IP address, tidak boleh kredensial di URL).
+
+| # | Method | URL | Body | Response |
+| --- | --- | --- | --- | --- |
+| 6 | `POST` | [`/webhook`](/id/api-reference/set-webhook) | `{"url":"https://..."}` | Webhook dengan `secret` signing baru (hanya ditampilkan sekali). POST lagi untuk mengubah URL atau merotasi secret. |
+| 7 | `GET` | [`/webhook`](/id/api-reference/get-webhook) | none | `{"object":"webhook","url":"https://...","enabled":true}` (`url` bernilai `null` dan `enabled` bernilai `false` jika belum diatur). |
+| 8 | `POST` | [`/webhook/disable`](/id/api-reference/disable-webhook) | none | `{"object":"webhook","url":null,"enabled":false}` |
+| 9 | `POST` | [`/webhook/test`](/id/api-reference/test-webhook) | none | Mengirim event `webhook.test` ke URL Anda dan mengembalikan `{"delivered":true}` atau `{"delivered":false}`. `400 invalid_request` jika tidak ada webhook yang dikonfigurasi. |
+
+## Event dan payload
+
+Event: `order.pending`, `order.success`, `order.error` (satu per perubahan status, dinamai sesuai status baru). Setelah `order.success` atau `order.error`, tidak ada event lebih lanjut yang dikirim untuk order tersebut. Objek `data` adalah [order](/id/api-reference/get-order#objek-order), termasuk `amount` dan `currency`.
+
+```http
+POST https://example.com/hooks/orders
+X-BP-Event: order.success
+X-BP-Delivery: evt_5d1c0e7a2b9f4c33
+X-BP-Timestamp: 1789000000
+X-BP-Signature: v1=3f2a...
+
+{"id":"evt_5d1c0e7a2b9f4c33","type":"order.success","created_at":"...","data":{ ...order object... }}
+```
+
+## Verifikasi signature
+
+Verifikasi setiap request: hitung `HMAC-SHA256(secret, timestamp + "." + rawBody)` sebagai lowercase hex, bandingkan dengan nilai setelah `v1=` dalam waktu konstan, dan tolak timestamp yang lebih dari 5 menit. Gunakan body request yang **raw**.
+
+<CodeGroup>
+
+```javascript Node.js
+const crypto = require("crypto");
+function verify(rawBody, headers, secret) {
+  const ts = headers["x-bp-timestamp"];
+  if (Math.abs(Date.now() / 1000 - Number(ts)) > 300) return false;
+  const mac = crypto.createHmac("sha256", secret).update(ts + "." + rawBody).digest("hex");
+  const got = String(headers["x-bp-signature"] || "").replace("v1=", "");
+  return got.length === mac.length && crypto.timingSafeEqual(Buffer.from(mac), Buffer.from(got));
+}
+```
+
+```php PHP
+<?php
+$raw = file_get_contents("php://input");
+$ts  = $_SERVER["HTTP_X_BP_TIMESTAMP"] ?? "";
+$sig = str_replace("v1=", "", $_SERVER["HTTP_X_BP_SIGNATURE"] ?? "");
+$mac = hash_hmac("sha256", $ts . "." . $raw, $secret);
+if (abs(time() - (int)$ts) > 300 || !hash_equals($mac, $sig)) { http_response_code(401); exit; }
+```
+
+```python Python
+import hmac, hashlib, time
+def verify(raw: bytes, ts: str, sig: str, secret: str) -> bool:
+    if abs(time.time() - int(ts)) > 300: return False
+    mac = hmac.new(secret.encode(), ts.encode() + b"." + raw, hashlib.sha256).hexdigest()
+    return hmac.compare_digest(mac, sig.replace("v1=", ""))
+```
+
+</CodeGroup>
+
+## Pengiriman dan percobaan ulang
+
+Respons dengan status `2xx` apa pun dalam 8 detik. Jika tidak, kami mencoba ulang dengan penundaan yang meningkat (hingga 6 kali percobaan selama kurang lebih sehari). Percobaan ulang menggunakan event `id` yang sama, jadi deduplikasi berdasarkan itu. Urutan pengiriman tidak dijamin; jika event tiba tidak berurutan, abaikan `order.pending` yang datang setelah `order.success` atau `order.error` final, atau ambil order untuk memastikan.

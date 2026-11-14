@@ -1,0 +1,24 @@
+---
+title: "Get webhook"
+description: "Baca pengaturan webhook saat ini."
+api: "GET https://orders.balaipedia.com/v1/webhook"
+---
+
+`url` adalah `null` dan `enabled` adalah `false` ketika tidak ada webhook yang diatur.
+
+<RequestExample>
+
+```bash curl
+curl https://orders.balaipedia.com/v1/webhook \
+  -H "Authorization: Bearer YOUR_KEY"
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200 OK
+{"object":"webhook","url":"https://...","enabled":true}
+```
+
+</ResponseExample>

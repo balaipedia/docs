@@ -9,59 +9,124 @@
   },
   "favicon": "/logo/balai-pedia-icon.png",
   "navigation": {
-    "pages": [
+    "languages": [
       {
-        "group": "Getting Started",
-        "pages": [
-          "index",
-          "quickstart",
-          "authentication",
-          "currency-and-credit"
+        "language": "en",
+        "default": true,
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "index",
+              "quickstart",
+              "authentication",
+              "currency-and-credit"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "webhooks",
+              "data-retention",
+              "errors",
+              "best-practices"
+            ]
+          },
+          {
+            "group": "Orders",
+            "pages": [
+              "api-reference/create-order",
+              "api-reference/get-order",
+              "api-reference/list-orders"
+            ]
+          },
+          {
+            "group": "Account",
+            "pages": [
+              "api-reference/get-balance",
+              "api-reference/list-transactions"
+            ]
+          },
+          {
+            "group": "Webhook endpoints",
+            "pages": [
+              "api-reference/set-webhook",
+              "api-reference/get-webhook",
+              "api-reference/disable-webhook",
+              "api-reference/test-webhook"
+            ]
+          },
+          {
+            "group": "Utility",
+            "pages": [
+              "api-reference/ping"
+            ]
+          },
+          {
+            "group": "Telegram bot",
+            "pages": [
+              "telegram-bot"
+            ]
+          }
         ]
       },
       {
-        "group": "Guides",
-        "pages": [
-          "webhooks",
-          "data-retention",
-          "errors",
-          "best-practices"
-        ]
-      },
-      {
-        "group": "Orders",
-        "pages": [
-          "api-reference/create-order",
-          "api-reference/get-order",
-          "api-reference/list-orders"
-        ]
-      },
-      {
-        "group": "Account",
-        "pages": [
-          "api-reference/get-balance",
-          "api-reference/list-transactions"
-        ]
-      },
-      {
-        "group": "Webhook endpoints",
-        "pages": [
-          "api-reference/set-webhook",
-          "api-reference/get-webhook",
-          "api-reference/disable-webhook",
-          "api-reference/test-webhook"
-        ]
-      },
-      {
-        "group": "Utility",
-        "pages": [
-          "api-reference/ping"
-        ]
-      },
-      {
-        "group": "Telegram bot",
-        "pages": [
-          "telegram-bot"
+        "language": "id",
+        "groups": [
+          {
+            "group": "Memulai",
+            "pages": [
+              "id/index",
+              "id/quickstart",
+              "id/authentication",
+              "id/currency-and-credit"
+            ]
+          },
+          {
+            "group": "Panduan",
+            "pages": [
+              "id/webhooks",
+              "id/data-retention",
+              "id/errors",
+              "id/best-practices"
+            ]
+          },
+          {
+            "group": "Order",
+            "pages": [
+              "id/api-reference/create-order",
+              "id/api-reference/get-order",
+              "id/api-reference/list-orders"
+            ]
+          },
+          {
+            "group": "Akun",
+            "pages": [
+              "id/api-reference/get-balance",
+              "id/api-reference/list-transactions"
+            ]
+          },
+          {
+            "group": "Endpoint webhook",
+            "pages": [
+              "id/api-reference/set-webhook",
+              "id/api-reference/get-webhook",
+              "id/api-reference/disable-webhook",
+              "id/api-reference/test-webhook"
+            ]
+          },
+          {
+            "group": "Utilitas",
+            "pages": [
+              "id/api-reference/ping"
+            ]
+          },
+          {
+            "group": "Bot Telegram",
+            "pages": [
+              "id/telegram-bot"
+            ]
+          }
         ]
       }
     ]

@@ -1,0 +1,48 @@
+---
+title: "Telegram bot"
+description: "Pesan dan periksa akun Anda dari Telegram bot kami, terpisah dari API."
+---
+
+Selain API, Anda dapat memesan dan memeriksa akun Anda dari Telegram bot kami. Ini opsional dan terpisah dari API: bot **tidak** menggunakan `/v1` dan tidak pernah membutuhkan API key Anda. Order dari bot menggunakan saldo, harga, validasi, dan aturan duplikat yang sama dengan API, serta muncul dalam daftar order dan transaksi yang sama (ditandai sebagai berasal dari bot).
+
+## Menghubungkan
+
+<Steps>
+  <Step title="Kirimkan kode bot Anda">
+    Buka tautan bot yang kami kirimkan, atau buka bot dan kirimkan kode bot satu kali pakai (`bpt_...`) yang kami emailkan kepada Anda. Kode berfungsi sekali dan kedaluwarsa 24 jam setelah dibuat.
+  </Step>
+  <Step title="Periksa akun Anda">
+    Bot menyapa Anda dengan nama dan menampilkan saldo, harga per order, dan sisa kuota Anda.
+  </Step>
+  <Step title="Kehilangan kode?">
+    Minta support untuk kode baru. Untuk mengganti akun, kirim `/keluar` (atau `/logout`) terlebih dahulu.
+  </Step>
+</Steps>
+
+<Warning>
+  **Jangan pernah mengirimkan API key Anda (`bpk_...`) ke bot.** Jika Anda melakukannya, bot akan menghapus pesan Anda dan memperingatkan Anda; minta support untuk key baru jika mungkin telah dilihat oleh orang lain.
+</Warning>
+
+## Memesan
+
+- Kirimkan email pembeli di chat, **satu per baris, maksimal 5 per pesan**. Setiap email divalidasi dan didebet secara terpisah, persis seperti satu order API. Lebih dari 5 akan ditolak.
+- Nama pembeli opsional: tambahkan baris `nama: Budi` (atau `name: Budi`) saat mengirim satu email.
+- Kirimkan Order ID (misalnya `BP-7K3M9QXA`) untuk melihat status order tersebut. Hanya order Anda sendiri yang ditemukan.
+- Jika email baru-baru ini dipesan, bot memberitahukan dan menawarkan **Send again** (didebet) atau **Cancel**. Menekan tombol dua kali tidak pernah membuat dua order.
+- Jika saldo Anda terlalu rendah, order tidak dibuat dan bot menampilkan tombol untuk menghubungi admin untuk top-up.
+- Request dari bot dihitung ke dalam rate limit yang sama dengan request API.
+
+## Perintah dan tombol
+
+| Perintah | Tombol | Fungsinya |
+| --- | --- | --- |
+| `/menu` (juga `/start`, `/help`) | Menu | Menu utama dengan saldo dan kuota Anda. |
+| `/riwayat` (`/history`) | Riwayat / History | Order terbaru Anda dan statusnya. |
+| `/saldo` (`/balance`) | Saldo / Balance | Saldo dan transaksi terbaru. |
+| `/bahasa` (`/language`) | Bahasa / Language | Pilih bahasa bot dan bahasa email yang dikirim ke pembeli. |
+| `/batal` (`/cancel`) |  | Membatalkan tindakan saat ini. |
+| `/keluar` (`/logout`) |  | Keluar dan menghapus keyboard. |
+
+Keyboard tombol tetap terlihat dan Anda dapat menyembunyikan atau menampilkannya dengan ikon keyboard di samping kotak pesan. Perintah `/` lainnya dijawab dengan "Unknown command" diikuti menu. Pesan yang bukan perintah dan tidak berisi email yang valid dijawab dengan "No email detected. Send buyer emails, one per line."
+
+Pesan bot mengikuti pengaturan bahasa bot Anda (Indonesia atau Inggris). Ini terpisah dari bahasa email yang diterima pembeli Anda.

@@ -1,0 +1,34 @@
+---
+title: "Set webhook"
+description: "Atur URL webhook Anda (atau rotasi secret-nya)."
+api: "POST https://orders.balaipedia.com/v1/webhook"
+---
+
+Mengembalikan webhook dengan `secret` tanda tangan yang baru (hanya ditampilkan sekali). POST lagi untuk mengubah URL atau merotasi secret.
+
+URL webhook harus merupakan URL `https` publik pada port 443 dengan hostname (tidak boleh alamat IP, tidak boleh kredensial di URL). Lihat [Webhook](/id/webhooks) untuk event dan verifikasi signature.
+
+## Body
+
+<ParamField body="url" type="string" required>
+  Endpoint HTTPS publik Anda, misalnya `https://example.com/hooks/orders`.
+</ParamField>
+
+<RequestExample>
+
+```bash curl
+curl -X POST https://orders.balaipedia.com/v1/webhook \
+  -H "Authorization: Bearer YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"url":"https://example.com/hooks/orders"}'
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200 OK
+{"object":"webhook","url":"https://example.com/hooks/orders","enabled":true,"secret":"whsec_...","note":"Store this secret now. It is shown only once; POST again to rotate it."}
+```
+
+</ResponseExample>

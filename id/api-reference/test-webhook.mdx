@@ -1,0 +1,24 @@
+---
+title: "Test webhook"
+description: "Kirim event uji ke webhook Anda."
+api: "POST https://orders.balaipedia.com/v1/webhook/test"
+---
+
+Mengirim event `webhook.test` ke URL Anda dan mengembalikan `{"delivered":true}` atau `{"delivered":false}`. Mengembalikan `400 invalid_request` jika tidak ada webhook yang dikonfigurasi.
+
+<RequestExample>
+
+```bash curl
+curl -X POST https://orders.balaipedia.com/v1/webhook/test \
+  -H "Authorization: Bearer YOUR_KEY"
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200 OK
+{"delivered":true}
+```
+
+</ResponseExample>

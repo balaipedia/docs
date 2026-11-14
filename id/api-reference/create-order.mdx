@@ -1,0 +1,177 @@
+---
+title: "Buat order"
+description: "Buat order dan kirim undangan."
+api: "POST https://orders.balaipedia.com/v1/orders"
+---
+
+Header: `Authorization: Bearer YOUR_KEY` dan `Content-Type: application/json` (wajib), serta `Idempotency-Key` (opsional, disarankan).
+
+<Note>
+  Header `Idempotency-Key` bersifat opsional, tetapi kami sangat menyarankan mengirimkannya pada setiap `POST /orders` agar order yang sama tidak pernah dibuat dua kali. Saat request timeout atau koneksi terputus, Anda tidak dapat mengetahui apakah order telah dibuat. Ulangi request dengan key dan email yang sama: Anda akan mendapatkan order yang sama kembali (header `Idempotent-Replayed: true`) dan tidak akan dikenakan biaya dua kali. Key diingat selama 24 jam. Menggunakan ulang key dengan email yang berbeda mengembalikan `422 idempotency_conflict`.
+</Note>
+
+<Warning>
+  Tanpa header tersebut, request tetap berfungsi dan pemeriksaan duplikat email (`409 duplicate_order`) tetap berlaku, tetapi kami tidak dapat mengenali percobaan ulang sebagai request yang sama. Secara khusus, mencoba ulang request yang timeout yang memiliki `allow_duplicate: true` dan tanpa key dapat membuat dan mengenakan biaya pada order kedua.
+</Warning>
+
+## Header
+
+<ParamField header="Idempotency-Key" type="string">
+  Opsional, disarankan. 8-64 karakter (huruf, angka, `_ . : -`), misalnya UUID. Mencegah order yang sama dibuat dua kali saat Anda mencoba ulang. Simpan bersama order Anda agar percobaan ulang menggunakannya kembali.
+</ParamField>
+
+## Body
+
+<ParamField body="email" type="string" required>
+  Email pembeli. Satu alamat per order.
+</ParamField>
+
+<ParamField body="name" type="string">
+  Opsional. Digunakan dalam sapaan (maks 60 karakter).
+</ParamField>
+
+<ParamField body="lang" default="en" type="string">
+  `"en"` | `"id"`. Bahasa email yang dikirim ke pembeli: Inggris atau Indonesia. Default `"en"`. Nilai lainnya ditolak dengan `400`. Ini tidak bergantung pada mata uang akun Anda.
+</ParamField>
+
+<ParamField body="reference" type="string">
+  Referensi order Anda sendiri (maks 64). Dikembalikan dalam respons dan webhook; dapat dicari melalui endpoint daftar.
+</ParamField>
+
+<ParamField body="allow_duplicate" type="boolean">
+  `true` atau `false` saja. Secara default, email yang telah menerima undangan dalam 30 hari terakhir ditolak dengan `409`. Atur true untuk mengirim ulang (dikenakan biaya). Pengiriman ulang hanya diizinkan jika undangan sebelumnya merupakan order milik Anda sendiri; jika tidak, tetap ditolak dengan `409`.
+</ParamField>
+
+## Respons
+
+Mengembalikan [objek order](/id/api-reference/get-order#objek-order) dengan status `201 Created`, ditambah `balance`: saldo Anda setelah pengurangan biaya.
+
+## Ditolak oleh validasi, `422` (tidak ada biaya)
+
+```json
+{"error":{"code":"email_rejected","message":"The email address was rejected by validation. No credit was charged.","reason":"mailbox_full","note":"The recipient's mailbox is full.","request_id":"req_..."}}
+```
+
+`reason` adalah kode stabil yang dapat Anda gunakan untuk percabangan; `note` adalah penjelasan singkat yang dapat dibaca manusia yang dapat Anda catat atau tampilkan.
+
+| reason | Arti |
+| --- | --- |
+| `invalid_format` | Bukan format email yang valid. |
+| `typo_domain` | Kemungkinan typo pada domain; `suggestion` mungkin berisi alamat yang diperbaiki. |
+| `domain_no_mail` | Domain tidak ada atau tidak menerima email. |
+| `mailbox_not_found` | Mailbox tidak ada. |
+| `mailbox_full` | Kotak masuk penerima penuh. |
+| `disposable_email` | Layanan email sementara / sekali pakai. |
+| `address_undeliverable` | Alamat ini sebelumnya gagal atau berada dalam daftar blokir kami. |
+| `high_risk` | Ditandai sebagai berisiko (spam trap, penyalahgunaan, do-not-mail). |
+| `invalid_email` | Kegagalan validasi lainnya. |
+
+## Respons kegagalan lainnya
+
+Setiap kegagalan menggunakan body yang sama, `{"error":{"code","message","request_id"}}`. Lakukan percabangan berdasarkan `code`, bukan `message`. Request yang gagal tidak pernah membuat order. Kredit hanya dikenakan pada `201`.
+
+| HTTP | code | Contoh body | Tindakan |
+| --- | --- | --- | --- |
+| 400 | `invalid_request` | `{"error":{"code":"invalid_request","message":"Only one email address per order.","request_id":"req_..."}}` | Satu email per request: tidak ada bulk, tidak ada daftar, dan tidak ada alamat yang dipisahkan koma, titik koma, atau spasi. Pesan lain: `"email" is required.`, `"email" must be a string.`, `"lang" must be "id" or "en".`, `"allow_duplicate" must be a boolean.`, `Request body must be a JSON object.`, `Idempotency-Key must be 8-64 chars (letters, digits, _ . : -).` Perbaiki request, jangan coba ulang tanpa perubahan. |
+| 400 | `invalid_json` | `{"error":{"code":"invalid_json","message":"Request body must be valid JSON.","request_id":"req_..."}}` | Kirim JSON yang valid dengan `Content-Type: application/json`. |
+| 401 | `unauthorized` | `{"error":{"code":"unauthorized","message":"Missing or invalid API key.","request_id":"req_..."}}` | Periksa header `Authorization: Bearer ...` dan key-nya. |
+| 402 | `insufficient_credit` | `{"error":{"code":"insufficient_credit","message":"Your credit balance is too low for this order.","balance":0,"required":0.15,"currency":"USD","request_id":"req_..."}}` | Isi ulang saldo, lalu kirim request lagi. Tidak ada yang dikenakan biaya. |
+| 409 | `duplicate_order` | `{"error":{"code":"duplicate_order","message":"This email already received an invitation recently. Set \"allow_duplicate\": true to send again (charged).","request_id":"req_..."}}` | Email yang sama baru-baru ini dipesan. Kirim `"allow_duplicate": true` hanya jika Anda benar-benar ingin mengirim (dan dikenakan biaya) lagi. Beberapa duplikat tidak dapat dikirim ulang sama sekali dan memerlukan bantuan support. |
+| 409 | `request_in_progress` | `{"error":{"code":"request_in_progress","message":"A request with this Idempotency-Key is still being processed.","request_id":"req_..."}}` | Tunggu beberapa detik dan kirim request yang sama dengan key yang sama lagi. |
+| 422 | `email_rejected` | lihat di atas | Tidak dikenakan biaya. Minta pembeli untuk memberikan alamat yang benar. |
+| 422 | `idempotency_conflict` | `{"error":{"code":"idempotency_conflict","message":"This Idempotency-Key was already used with a different email.","request_id":"req_..."}}` | Gunakan key baru untuk email yang berbeda. |
+| 429 | `rate_limited` | `{"error":{"code":"rate_limited","message":"Too many requests. Slow down.","request_id":"req_..."}}` | Tunggu selama jumlah detik yang tertera di header `Retry-After`, lalu coba ulang. |
+| 503 | `temporarily_unavailable` | `{"error":{"code":"temporarily_unavailable","message":"We could not process this order right now. No credit was charged. Please retry shortly.","request_id":"req_..."}}` | Header `Retry-After: 30`. Coba ulang setelah itu, dengan `Idempotency-Key` yang sama jika Anda mengirimkannya. |
+
+Status lainnya (`403`, `404`, `405`, `413`, `500`) tercantum di bawah [Errors](/id/errors).
+
+<RequestExample>
+
+```bash curl
+curl -X POST https://orders.balaipedia.com/v1/orders \
+  -H "Authorization: Bearer YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: 6f1c2f7e-9a4b-4d0e-8f3a-1b2c3d4e5f60" \
+  -d '{"email":"buyer@gmail.com","name":"Budi","lang":"en","reference":"ORD-10293"}'
+```
+
+```javascript Node.js
+// Node 18+
+const key = require("crypto").randomUUID();   // store it with your order so a retry reuses it
+const res = await fetch("https://orders.balaipedia.com/v1/orders", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer " + process.env.BP_API_KEY,
+    "Content-Type": "application/json",
+    "Idempotency-Key": key
+  },
+  body: JSON.stringify({ email: "buyer@gmail.com", name: "Budi", lang: "en", reference: "ORD-10293" })
+});
+const text = await res.text();
+let data = null;
+try { data = JSON.parse(text); } catch (e) {}   // a 5xx from the platform may not be JSON
+if (res.status === 201) { /* save data.id with your own order */ }
+else if (res.status >= 500 || data === null) { /* retry later with the SAME key */ }
+else { /* data.error.code tells you what to fix */ }
+```
+
+```php PHP
+<?php
+$ch = curl_init("https://orders.balaipedia.com/v1/orders");
+curl_setopt_array($ch, [
+  CURLOPT_POST => true,
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_TIMEOUT => 30,
+  CURLOPT_HTTPHEADER => [
+    "Authorization: Bearer " . getenv("BP_API_KEY"),
+    "Content-Type: application/json",
+    "Idempotency-Key: " . $key,   // e.g. a UUID you stored with your order
+  ],
+  CURLOPT_POSTFIELDS => json_encode(["email" => "buyer@gmail.com", "name" => "Budi", "lang" => "en", "reference" => "ORD-10293"]),
+]);
+$body = curl_exec($ch);
+$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+$data = json_decode((string)$body, true);   // null when the body is not JSON (retry with the same key)
+```
+
+```python Python
+import os, uuid, requests
+
+key = str(uuid.uuid4())   # store it with your order so a retry reuses it
+r = requests.post(
+    "https://orders.balaipedia.com/v1/orders",
+    headers={"Authorization": "Bearer " + os.environ["BP_API_KEY"], "Idempotency-Key": key},
+    json={"email": "buyer@gmail.com", "name": "Budi", "lang": "en", "reference": "ORD-10293"},
+    timeout=30,
+)
+try: data = r.json()
+except ValueError: data = None   # a 5xx from the platform may not be JSON: retry with the same key
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 201 Created
+{
+  "id": "BP-7K3M9QXA",
+  "object": "order",
+  "email": "buyer@gmail.com",
+  "reference": "ORD-10293",
+  "status": "processing",
+  "note": null,
+  "created_at": "2026-11-12T03:10:00.000Z",
+  "completed_at": null,
+  "expires_at": "2026-12-12",
+  "amount": 0.15,
+  "currency": "USD",
+  "refunded": false,
+  "balance": 42.2
+}
+```
+
+```json 422 Rejected
+{"error":{"code":"email_rejected","message":"The email address was rejected by validation. No credit was charged.","reason":"mailbox_full","note":"The recipient's mailbox is full.","request_id":"req_..."}}
+```
+
+</ResponseExample>

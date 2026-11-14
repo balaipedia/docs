@@ -1,0 +1,27 @@
+---
+title: "Mata uang dan kredit"
+description: "Mata uang akun, format jumlah, dan cara kredit didebet."
+---
+
+## Mata uang
+
+Setiap akun memiliki tepat satu mata uang, `USD` atau `IDR`. Mata uang dipilih ketika akun Anda dibuat dan tidak dapat diubah setelahnya. Semua nilai moneter (`balance`, `price_per_order`, `amount`, `required`) dalam mata uang tersebut, dan setiap respons yang berisi uang juga berisi field `currency`.
+
+| Mata uang | Format | Contoh |
+| --- | --- | --- |
+| USD | 2 desimal | `0.15` = 15 sen |
+| IDR | rupiah utuh, tanpa desimal | `2500` = Rp 2.500 |
+
+Jumlah adalah angka JSON, bukan string. Jangan hard-code simbol mata uang: baca `currency` dari respons.
+
+<Note>
+  Contoh dalam dokumentasi ini menggunakan `USD`. Ini hanya memengaruhi angka sampel: untuk akun `IDR`, field yang sama berisi rupiah utuh (lihat tabel di atas). Mata uang asli Anda diatur pada akun Anda dan dikembalikan sebagai `currency` di setiap respons.
+</Note>
+
+## Kredit dan harga
+
+Anda mengisi saldo kredit dalam mata uang akun Anda. Setiap order membebankan harga per order yang telah disepakati, didebet ketika order diterima.
+
+- Jika alamat email **ditolak oleh validasi** (tidak valid, kotak surat penuh, sekali pakai, dll.) request gagal dengan `422`, tidak ada order yang dibuat dan **tidak ada kredit yang didebet**.
+- Jika kami tidak dapat memproses order karena alasan internal (`503`), kredit juga tidak didebet.
+- Jika saldo Anda terlalu rendah, request gagal dengan `402`.

@@ -1,0 +1,55 @@
+---
+title: "Reseller API v1"
+sidebarTitle: "Ringkasan"
+description: "Buat dan lacak pesanan undangan tim Canva Pro secara terprogram."
+---
+
+## Ringkasan
+
+Base URL: `https://orders.balaipedia.com/v1`. Semua request dan respons adalah JSON melalui HTTPS (HTTP biasa tidak tersedia). Kirim `Content-Type: application/json` pada request yang memiliki body. Timestamp menggunakan format ISO 8601 UTC. Jumlah dalam mata uang akun Anda (contoh dalam dokumentasi ini: `USD`). Hanya `GET` dan `POST` yang digunakan.
+
+<Warning>
+  API ini hanya untuk penggunaan **server-to-server**. Jangan pernah menaruh API key Anda di browser atau kode aplikasi mobile.
+</Warning>
+
+## Endpoint sekilas
+
+| # | Method | Path | Fungsinya |
+| --- | --- | --- | --- |
+| 1 | `POST` | [`/orders`](/id/api-reference/create-order) | Membuat order (mengirim undangan). |
+| 2 | `GET` | [`/orders/{id}`](/id/api-reference/get-order) | Mendapatkan status satu order. |
+| 3 | `GET` | [`/orders`](/id/api-reference/list-orders) | Menampilkan dan memfilter order Anda. |
+| 4 | `GET` | [`/balance`](/id/api-reference/get-balance) | Saldo kredit Anda dan harga per order. |
+| 5 | `GET` | [`/transactions`](/id/api-reference/list-transactions) | Top-up, biaya, pengembalian dana, dan penyesuaian. |
+| 6 | `POST` | [`/webhook`](/id/api-reference/set-webhook) | Mengatur URL webhook Anda (atau memutar secret-nya). |
+| 7 | `GET` | [`/webhook`](/id/api-reference/get-webhook) | Membaca pengaturan webhook saat ini. |
+| 8 | `POST` | [`/webhook/disable`](/id/api-reference/disable-webhook) | Menghapus webhook Anda. |
+| 9 | `POST` | [`/webhook/test`](/id/api-reference/test-webhook) | Mengirim event uji ke webhook Anda. |
+| 10 | `GET` | [`/ping`](/id/api-reference/ping) | Health check (tanpa autentikasi). |
+
+## Konvensi respons
+
+- **Setiap respons dari API adalah JSON**, termasuk error, URL yang tidak dikenal, dan method HTTP yang salah. Respons membawa header `X-Request-Id` (nilai yang sama dengan `request_id` di body error). Satu-satunya halaman HTML adalah dokumentasi ini.
+- **Kegagalan platform.** Dalam kasus langka, kegagalan dapat terjadi sebelum request Anda mencapai aplikasi kami (misalnya outage gateway atau jaringan). Respons `5xx` seperti itu mungkin bukan JSON. Selalu periksa status HTTP terlebih dahulu dan parse body hanya jika berupa JSON. Perlakukan setiap `5xx` atau timeout jaringan sebagai dapat dicoba ulang (lihat [Percobaan ulang](/id/errors#percobaan-ulang)).
+- Respons sukses mengembalikan objek secara langsung (tanpa wrapper). Respons error selalu mengembalikan `{"error":{"code","message","request_id"}}` (lihat [Error](/id/errors)); cabang berdasarkan `code`, bukan `message`.
+- Field yang didokumentasikan sebagai _nullable_ selalu ada dan bernilai `null` ketika belum ada nilai (misalnya `completed_at` pada order yang masih diproses). Field tidak pernah dihilangkan atau `undefined`.
+- Respons hanya berisi informasi tentang order dan akun Anda sendiri. Tidak ada detail sistem internal atau pihak ketiga yang disertakan.
+- CORS tidak diaktifkan: panggil API dari server Anda, bukan dari browser.
+
+<Columns cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/id/quickstart">
+    Buat order pertama Anda.
+  </Card>
+
+  <Card title="Autentikasi" icon="key" href="/id/authentication">
+    Autentikasi dengan API key Anda.
+  </Card>
+
+  <Card title="Webhook" icon="webhook" href="/id/webhooks">
+    Terima perubahan status order.
+  </Card>
+
+  <Card title="Error dan limit" icon="triangle-exclamation" href="/id/errors">
+    Kode error, rate limit, dan percobaan ulang.
+  </Card>
+</Columns>
