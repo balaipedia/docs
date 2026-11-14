@@ -21,14 +21,14 @@ Errors use standard HTTP status codes and this body. Quote `request_id` when con
 | 413 | `payload_too_large` | Request body larger than 20 KB. |
 | 422 | `email_rejected`, `idempotency_conflict` | Address failed validation (see `reason`), not charged; or the Idempotency-Key was reused with a different email. |
 | 429 | `rate_limited`, `too_many_failed_attempts` | Wait for `Retry-After` seconds. Default limit: 60 requests/minute. Repeated wrong API keys from one IP are blocked for up to 15 minutes. |
-| 500 | `internal_error` | Unexpected error. Retry later with the same Idempotency-Key. If it persists, contact support with the `request_id`. |
-| 503 | `temporarily_unavailable`, `service_unavailable` | We could not process the request right now. Not charged. `temporarily_unavailable` always includes a `Retry-After: 30` header: wait that many seconds, then retry with the same Idempotency-Key. |
+| 500 | `internal_error` | Unexpected error. Retry later (with the same Idempotency-Key if you sent one). If it persists, contact support with the `request_id`. |
+| 503 | `temporarily_unavailable`, `service_unavailable` | We could not process the request right now. Not charged. `temporarily_unavailable` always includes a `Retry-After: 30` header: wait that many seconds, then retry (with the same Idempotency-Key if you sent one). |
 
 Optional extra fields on some errors: `reason`, `note` and `suggestion` (`422`), `balance`, `required` and `currency` (`402`).
 
 ## Retries
 
 - **Retry** on a network error or timeout, on `429` (wait `Retry-After`), on `409 request_in_progress`, and on any `5xx`. This includes a `5xx` whose body is not JSON (for example a gateway error page): in that case check only the HTTP status.
-- **Always reuse the same `Idempotency-Key`** and the same email when retrying `POST /orders`. You get the original order back and are never charged twice.
+- If you sent an `Idempotency-Key` (recommended), **reuse the same key** and the same email when retrying `POST /orders`. You get the original order back and are never charged twice. Without a key we cannot tell a retry from a new request.
 - Use a growing delay between attempts (for example 1s, 2s, 4s, up to a few minutes) and stop after a reasonable number of tries.
 - **Do not retry unchanged** other `4xx` errors: fix the request first.

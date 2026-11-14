@@ -65,7 +65,3 @@ def verify(raw: bytes, ts: str, sig: str, secret: str) -> bool:
 ## Delivery and retries
 
 Respond with any `2xx` within 8 seconds. Otherwise we retry with increasing delays (up to 6 attempts over roughly a day). Retries reuse the same event `id`, so deduplicate on it. Delivery order is not guaranteed; treat the `status` in the payload as the current state, or fetch the order to confirm.
-
-<Note>
-  Existing integrations that still call `PUT /webhook` or `DELETE /webhook` keep working, but new integrations should use the `POST` calls above.
-</Note>

@@ -14,10 +14,6 @@ A webhook URL must be a public `https` URL on port 443 with a hostname (no IP ad
   Your public HTTPS endpoint, e.g. `https://example.com/hooks/orders`.
 </ParamField>
 
-<Note>
-  Existing integrations that still call `PUT /webhook` or `DELETE /webhook` keep working, but new integrations should use the `POST` calls.
-</Note>
-
 <RequestExample>
 
 ```bash curl

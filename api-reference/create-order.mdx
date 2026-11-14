@@ -4,16 +4,20 @@ description: "Create an order and send the invitation."
 api: "POST https://orders.balaipedia.com/v1/orders"
 ---
 
-Headers: `Authorization`, `Content-Type: application/json`, and `Idempotency-Key` (8-64 chars, e.g. a UUID).
+Headers: `Authorization` and `Content-Type: application/json` (required), and `Idempotency-Key` (optional, recommended).
 
 <Note>
-  Always send an `Idempotency-Key` header. If a request times out, repeat it with the same key and the same email: you get the same order back (header `Idempotent-Replayed: true`) and are never charged twice. Keys are remembered for 24 hours. Reusing a key with a different email returns `422 idempotency_conflict`.
+  The `Idempotency-Key` header is optional, but we strongly recommend sending it on every `POST /orders` so the same order is never created twice. When a request times out or the connection drops you cannot know whether the order was created. Repeat the request with the same key and the same email: you get the same order back (header `Idempotent-Replayed: true`) and are never charged twice. Keys are remembered for 24 hours. Reusing a key with a different email returns `422 idempotency_conflict`.
 </Note>
+
+<Warning>
+  Without the header the request still works and the duplicate-email check (`409 duplicate_order`) still applies, but we cannot recognise a retry as the same request. In particular, retrying a timed-out request that has `allow_duplicate: true` and no key can create and charge a second order.
+</Warning>
 
 ## Headers
 
-<ParamField header="Idempotency-Key" type="string" required>
-  8-64 chars, e.g. a UUID. Store it with your order so a retry reuses it.
+<ParamField header="Idempotency-Key" type="string">
+  Optional, recommended. 8-64 characters (letters, digits, `_ . : -`), for example a UUID. Prevents the same order from being created twice when you retry. Store it with your order so a retry reuses it.
 </ParamField>
 
 ## Body

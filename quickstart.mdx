@@ -18,7 +18,7 @@ description: "Check your balance, create your first order and track its status."
     ```
   </Step>
   <Step title="Create an order">
-    Always send an `Idempotency-Key` header (8-64 chars, e.g. a UUID).
+    We recommend sending an `Idempotency-Key` header (optional; 8-64 characters, e.g. a UUID) so a retry never creates the same order twice.
 
     ```bash
     curl -X POST https://orders.balaipedia.com/v1/orders \
