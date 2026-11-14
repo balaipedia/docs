@@ -22,7 +22,7 @@ Errors use standard HTTP status codes and this body. Quote `request_id` when con
 | 422 | `email_rejected`, `idempotency_conflict` | Address failed validation (see `reason`), not charged; or the Idempotency-Key was reused with a different email. |
 | 429 | `rate_limited`, `too_many_failed_attempts` | Wait for `Retry-After` seconds. Default limit: 60 requests/minute. Repeated wrong API keys from one IP are blocked for up to 15 minutes. |
 | 500 | `internal_error` | Unexpected error. Retry later (with the same Idempotency-Key if you sent one). If it persists, contact support with the `request_id`. |
-| 503 | `temporarily_unavailable`, `service_unavailable` | We could not process the request right now. Not charged. `temporarily_unavailable` always includes a `Retry-After: 30` header: wait that many seconds, then retry (with the same Idempotency-Key if you sent one). |
+| 503 | `temporarily_unavailable`, `out_of_capacity`, `service_unavailable` | We could not process the request right now. Not charged. `temporarily_unavailable` always includes a `Retry-After: 30` header. `out_of_capacity` means we cannot fulfil new orders at the moment and includes a longer `Retry-After` (300 seconds): wait at least that long. In both cases retry with the same Idempotency-Key if you sent one. |
 
 Optional extra fields on some errors: `reason`, `note` and `suggestion` (`422`), `balance`, `required` and `currency` (`402`).
 

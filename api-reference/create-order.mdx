@@ -49,7 +49,7 @@ Returns the [order object](/api-reference/get-order#the-order-object) with statu
 ## Rejected by validation, `422` (nothing charged)
 
 ```json
-{"error":{"code":"email_rejected","message":"The email address was rejected by validation. No credit was charged.","reason":"mailbox_full","note":"The recipient's mailbox is full.","request_id":"req_..."}}
+{"error":{"code":"email_rejected","message":"The email address was rejected by validation. No credit was charged.","reason":"mailbox_full","note":"The recipient's mailbox is full. Ask them to free up space, then retry after 3 hours.","request_id":"req_..."}}
 ```
 
 `reason` is a stable code you can branch on; `note` is a short human-readable explanation you can log or show.
@@ -82,6 +82,7 @@ Every failure uses the same body, `{"error":{"code","message","request_id"}}`. B
 | 422 | `idempotency_conflict` | `{"error":{"code":"idempotency_conflict","message":"This Idempotency-Key was already used with a different email.","request_id":"req_..."}}` | Use a new key for a different email. |
 | 429 | `rate_limited` | `{"error":{"code":"rate_limited","message":"Too many requests. Slow down.","request_id":"req_..."}}` | Wait for the number of seconds in the `Retry-After` header, then retry. |
 | 503 | `temporarily_unavailable` | `{"error":{"code":"temporarily_unavailable","message":"We could not process this order right now. No credit was charged. Please retry shortly.","request_id":"req_..."}}` | Header `Retry-After: 30`. Retry after that, with the same `Idempotency-Key` if you sent one. |
+| 503 | `out_of_capacity` | `{"error":{"code":"out_of_capacity","message":"We are temporarily out of capacity for new orders. No credit was charged. Please retry later.","request_id":"req_..."}}` | Not charged. We cannot fulfil new orders right now. Header `Retry-After: 300`: wait at least that long, then retry with the same `Idempotency-Key` if you sent one. Do not retry in a tight loop. |
 
 Other statuses (`403`, `404`, `405`, `413`, `500`) are listed under [Errors](/errors).
 
@@ -171,7 +172,7 @@ except ValueError: data = None   # a 5xx from the platform may not be JSON: retr
 ```
 
 ```json 422 Rejected
-{"error":{"code":"email_rejected","message":"The email address was rejected by validation. No credit was charged.","reason":"mailbox_full","note":"The recipient's mailbox is full.","request_id":"req_..."}}
+{"error":{"code":"email_rejected","message":"The email address was rejected by validation. No credit was charged.","reason":"mailbox_full","note":"The recipient's mailbox is full. Ask them to free up space, then retry after 3 hours.","request_id":"req_..."}}
 ```
 
 </ResponseExample>
