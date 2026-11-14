@@ -3,11 +3,11 @@
   "theme": "mint",
   "name": "Balai Pedia",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#F28C28",
+    "light": "#FF9A3C",
+    "dark": "#E8770F"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/logo/balai-pedia-icon.png",
   "navigation": {
     "pages": [
       {
@@ -67,8 +67,8 @@
     ]
   },
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "light": "/logo/balai-pedia-logo.png",
+    "dark": "/logo/balai-pedia-logo.png"
   },
   "navbar": {
     "primary": {
