@@ -1,0 +1,78 @@
+---
+title: "Set email profile"
+description: "Set or clear your email profile."
+api: "POST https://orders.balaipedia.com/v1/profile"
+---
+
+Optional. By default the emails to your buyers use a neutral sender name and tell the buyer to contact you. With an email profile you can show your own sender name and one contact (WhatsApp or Telegram) instead, so the email looks like it comes from your store. Leave both empty to keep the default emails. See [Buyer emails](/buyer-emails).
+
+- The profile is shared with the [Telegram bot](/telegram-bot) (the **Profile** button in the bot menu, or `/profil`): a change made in either place applies to both.
+- It is used for invitation emails and reminders sent after the change; emails already sent do not change.
+- A field you leave out is not changed. `null` (or an empty `sender_name`) clears it and the default is used again. At least one of the two fields is required.
+- Each change is visible to our team, and a profile that breaks these rules can be removed.
+
+## Body
+
+<ParamField body="sender_name" type="string | null">
+  2 to 30 characters: letters (A-Z), numbers, spaces, `-` and `&` only. No links, `@`, quotes or other symbols. Shown as the sender name, in the email header and as the signature. Names that imitate a brand, bank, payment service, authority or this service, or that contain scam, gambling or adult wording, are rejected.
+</ParamField>
+
+<ParamField body="contact" type="object | null">
+  Only one contact, as `{"type","value"}`. Setting one type replaces the other. You never send a link: we build the `wa.me` or `t.me` link ourselves.
+
+  <Expandable title="properties">
+    <ParamField body="type" type="string" required>
+      `"whatsapp"` or `"telegram"`.
+    </ParamField>
+    <ParamField body="value" type="string" required>
+      For `whatsapp`: a phone number such as `0812-3456-7890` or `+62 812-3456-7890` (digits only). For `telegram`: a username of 5 to 32 characters such as `@majustore`; bot accounts are not allowed.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+## Response
+
+The profile after the change. WhatsApp numbers are returned as digits with the country code (a leading `0` is read as Indonesia, `62`). Telegram usernames are returned without `@`.
+
+## Errors
+
+A rejected value returns `400 invalid_request` with `field` (`sender_name` or `contact`) and `reason`. Nothing is saved when any field is rejected.
+
+| `field` | `reason` |
+| --- | --- |
+| `sender_name` | `too_short`, `too_long`, `invalid_characters`, `not_allowed` |
+| `contact` | `invalid_type`, `invalid_value`, `not_allowed` |
+
+```json 400
+{"error":{"code":"invalid_request","message":"\"sender_name\" is not allowed. Please choose a different name.","request_id":"req_...","field":"sender_name","reason":"not_allowed"}}
+```
+
+`400 invalid_request` is also returned for a body that is not a JSON object or a request with neither `sender_name` nor `contact`. `503 temporarily_unavailable` is returned when the setting cannot be saved right now; retry shortly.
+
+<RequestExample>
+
+```bash Set
+curl -X POST https://orders.balaipedia.com/v1/profile \
+  -H "Authorization: Bearer YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"sender_name":"Maju Store","contact":{"type":"whatsapp","value":"0812-3456-7890"}}'
+```
+
+```bash Clear
+# clear everything (back to the default emails)
+curl -X POST https://orders.balaipedia.com/v1/profile -H "Authorization: Bearer YOUR_KEY" -H "Content-Type: application/json" -d '{"sender_name":null,"contact":null}'
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200 OK
+{"object":"profile","sender_name":"Maju Store","contact":{"type":"whatsapp","value":"6281234567890"}}
+```
+
+```json 200 OK (cleared)
+{"object":"profile","sender_name":null,"contact":null}
+```
+
+</ResponseExample>

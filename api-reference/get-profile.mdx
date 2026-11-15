@@ -1,0 +1,28 @@
+---
+title: "Get email profile"
+description: "Read your email profile (sender name and contact)."
+api: "GET https://orders.balaipedia.com/v1/profile"
+---
+
+Returns your current [email profile](/api-reference/set-profile). `sender_name` and `contact` are `null` when they are not set, and the default emails are used (see [Buyer emails](/buyer-emails)).
+
+<RequestExample>
+
+```bash curl
+curl https://orders.balaipedia.com/v1/profile \
+  -H "Authorization: Bearer YOUR_KEY"
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200 OK
+{"object":"profile","sender_name":"Maju Store","contact":{"type":"whatsapp","value":"6281234567890"}}
+```
+
+```json 200 OK (default)
+{"object":"profile","sender_name":null,"contact":null}
+```
+
+</ResponseExample>

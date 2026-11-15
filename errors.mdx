@@ -24,7 +24,7 @@ Errors use standard HTTP status codes and this body. Quote `request_id` when con
 | 500 | `internal_error` | Unexpected error. Retry later (with the same Idempotency-Key if you sent one). If it persists, contact support with the `request_id`. |
 | 503 | `temporarily_unavailable`, `out_of_capacity`, `service_unavailable` | We could not process the request right now. Not charged. `temporarily_unavailable` always includes a `Retry-After: 30` header. `out_of_capacity` means we cannot fulfil new orders at the moment (including when the last remaining capacity was just taken by another order sent at the same time) and includes a longer `Retry-After` (300 seconds): wait at least that long. In both cases retry with the same Idempotency-Key if you sent one. |
 
-Optional extra fields on some errors: `reason`, `note` and `suggestion` (`422`), `balance`, `required` and `currency` (`402`).
+Optional extra fields on some errors: `field`, `reason`, `note` and `suggestion` (`422`), `balance`, `required` and `currency` (`402`).
 
 ## Failures by endpoint
 
@@ -47,6 +47,7 @@ All endpoints except `/ping` can return `401 unauthorized`, `403 account_disable
 | `POST /webhook` | `400 invalid_request`: `"url" must be a public https URL on port 443 (no IP addresses).` |
 | `POST /webhook/test` | `400 invalid_request`: `No webhook configured.` Set a webhook first. |
 | `GET /webhook`, `POST /webhook/disable` | Only the common failures above. |
+| `GET /profile`, `POST /profile` | POST: `400 invalid_request` for a body that is not a JSON object, for a request with neither `sender_name` nor `contact`, or for a rejected value (see [Set email profile](/api-reference/set-profile#errors)). Both: `503 temporarily_unavailable` when the setting cannot be read or saved right now; retry shortly. |
 | Any URL | `404 not_found` (unknown path) or `405 method_not_allowed` (the `Allow` header lists valid methods). Unknown paths never return HTML. |
 
 ## Retries

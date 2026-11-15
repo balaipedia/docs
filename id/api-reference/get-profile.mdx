@@ -1,0 +1,28 @@
+---
+title: "Get email profile"
+description: "Baca profil email Anda (nama pengirim dan kontak)."
+api: "GET https://orders.balaipedia.com/v1/profile"
+---
+
+Mengembalikan [profil email](/id/api-reference/set-profile) Anda saat ini. `sender_name` dan `contact` bernilai `null` jika belum diatur, dan email default yang digunakan (lihat [Email pembeli](/id/buyer-emails)).
+
+<RequestExample>
+
+```bash curl
+curl https://orders.balaipedia.com/v1/profile \
+  -H "Authorization: Bearer YOUR_KEY"
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200 OK
+{"object":"profile","sender_name":"Maju Store","contact":{"type":"whatsapp","value":"6281234567890"}}
+```
+
+```json 200 OK (default)
+{"object":"profile","sender_name":null,"contact":null}
+```
+
+</ResponseExample>

@@ -64,6 +64,13 @@
             ]
           },
           {
+            "group": "Email profile",
+            "pages": [
+              "api-reference/get-profile",
+              "api-reference/set-profile"
+            ]
+          },
+          {
             "group": "Telegram bot",
             "pages": [
               "telegram-bot"
@@ -121,6 +128,13 @@
             "group": "Utilitas",
             "pages": [
               "id/api-reference/ping"
+            ]
+          },
+          {
+            "group": "Profil email",
+            "pages": [
+              "id/api-reference/get-profile",
+              "id/api-reference/set-profile"
             ]
           },
           {

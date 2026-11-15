@@ -4,13 +4,15 @@ sidebarTitle: "Email pembeli"
 description: "Email undangan dan pengingat yang diterima pembeli, dalam bahasa Indonesia dan Inggris."
 ---
 
-Pembeli Anda menerima email ini dalam bahasa Indonesia (`"lang":"id"`) atau bahasa Inggris (`"lang":"en"`), sesuai `lang` yang Anda kirim saat [membuat order](/id/api-reference/create-order). Email dikirim dengan nama pengirim netral **Order Digital**. Email tidak memuat branding toko maupun kontak WhatsApp toko: untuk masalah apa pun, pembeli diminta menghubungi **Anda**, penjual tempat mereka membeli.
+Pembeli Anda menerima email ini dalam bahasa Indonesia (`"lang":"id"`) atau bahasa Inggris (`"lang":"en"`), sesuai `lang` yang Anda kirim saat [membuat order](/id/api-reference/create-order). Secara default, email dikirim dengan nama pengirim netral **Order Digital**, tanpa branding toko maupun kontak WhatsApp toko: untuk masalah apa pun, pembeli diminta menghubungi **Anda**, penjual tempat mereka membeli. Jika Anda mengatur [profil email](/id/api-reference/set-profile), nama pengirim dan kontak WhatsApp atau Telegram Anda yang ditampilkan (contoh D dan E).
 
 | Email | Kapan dikirim | Subjek (`id`) | Subjek (`en`) |
 | --- | --- | --- | --- |
 | A. Undangan | Tepat setelah order diproses. | Cara Bergabung ke Tim Canva Pro Anda | How to Join Your Canva Pro Team |
 | B. Pengingat: masa aktif segera berakhir | Otomatis, beberapa hari sebelum masa aktif berakhir. | Pengingat: Masa Aktif Canva Pro Anda Segera Berakhir | Reminder: Your Canva Pro Access Is Ending Soon |
 | C. Pengingat: masa aktif telah berakhir | Otomatis, tak lama setelah masa aktif berakhir. | Masa Aktif Canva Pro Anda Telah Berakhir | Your Canva Pro Access Has Ended |
+| D. Undangan dengan profil email Anda (WhatsApp) | Sama seperti A, setelah Anda mengatur nama pengirim dan kontak WhatsApp. | Cara Bergabung ke Tim Canva Pro Anda | How to Join Your Canva Pro Team |
+| E. Pengingat dengan profil email Anda (Telegram) | Sama seperti B, pengingat memakai profil yang sama (di sini dengan kontak Telegram). | Pengingat: Masa Aktif Canva Pro Anda Segera Berakhir | Reminder: Your Canva Pro Access Is Ending Soon |
 
 ## Pratinjau
 

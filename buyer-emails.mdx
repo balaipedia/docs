@@ -4,13 +4,15 @@ sidebarTitle: "Buyer emails"
 description: "The invitation and reminder emails your buyer receives, in Indonesian and English."
 ---
 
-Your buyer receives these emails in Indonesian (`"lang":"id"`) or English (`"lang":"en"`), depending on the `lang` you send when you [create an order](/api-reference/create-order). The emails are sent under the neutral sender name **Order Digital**. They have no store branding and no store WhatsApp contact: for any problem the buyer is told to contact **you**, the seller they bought from.
+Your buyer receives these emails in Indonesian (`"lang":"id"`) or English (`"lang":"en"`), depending on the `lang` you send when you [create an order](/api-reference/create-order). By default the emails are sent under the neutral sender name **Order Digital**, with no store branding and no store WhatsApp contact: for any problem the buyer is told to contact **you**, the seller they bought from. If you set an [email profile](/api-reference/set-profile), your sender name and your WhatsApp or Telegram contact are shown instead (examples D and E).
 
 | Email | When it is sent | Subject (`id`) | Subject (`en`) |
 | --- | --- | --- | --- |
 | A. Invitation | Right after the order is processed. | Cara Bergabung ke Tim Canva Pro Anda | How to Join Your Canva Pro Team |
 | B. Reminder: access ends soon | Automatically, a few days before the access ends. | Pengingat: Masa Aktif Canva Pro Anda Segera Berakhir | Reminder: Your Canva Pro Access Is Ending Soon |
 | C. Reminder: access has ended | Automatically, shortly after the access ended. | Masa Aktif Canva Pro Anda Telah Berakhir | Your Canva Pro Access Has Ended |
+| D. Invitation with your email profile (WhatsApp) | Same as A, after you set a sender name and a WhatsApp contact. | Cara Bergabung ke Tim Canva Pro Anda | How to Join Your Canva Pro Team |
+| E. Reminder with your email profile (Telegram) | Same as B, reminders use the same profile (here with a Telegram contact). | Pengingat: Masa Aktif Canva Pro Anda Segera Berakhir | Reminder: Your Canva Pro Access Is Ending Soon |
 
 ## Preview
 

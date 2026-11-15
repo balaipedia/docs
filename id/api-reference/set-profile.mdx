@@ -1,0 +1,78 @@
+---
+title: "Set email profile"
+description: "Atur atau hapus profil email Anda."
+api: "POST https://orders.balaipedia.com/v1/profile"
+---
+
+Opsional. Secara default, email ke pembeli Anda memakai nama pengirim netral dan meminta pembeli menghubungi Anda. Dengan profil email, Anda dapat menampilkan nama pengirim Anda sendiri dan satu kontak (WhatsApp atau Telegram), sehingga email terlihat berasal dari toko Anda. Biarkan keduanya kosong untuk tetap memakai email default. Lihat [Email pembeli](/id/buyer-emails).
+
+- Profil ini sama dengan yang ada di [Bot Telegram](/id/telegram-bot) (tombol **Profil** di menu bot, atau `/profil`): perubahan di salah satu tempat berlaku untuk keduanya.
+- Profil dipakai untuk email undangan dan pengingat yang dikirim setelah perubahan; email yang sudah terkirim tidak berubah.
+- Field yang tidak Anda kirim tidak diubah. `null` (atau `sender_name` kosong) menghapusnya dan default dipakai kembali. Minimal salah satu dari kedua field wajib dikirim.
+- Setiap perubahan dapat dilihat oleh tim kami, dan profil yang melanggar aturan ini dapat dihapus.
+
+## Body
+
+<ParamField body="sender_name" type="string | null">
+  2 sampai 30 karakter: hanya huruf (A-Z), angka, spasi, `-` dan `&`. Tanpa link, `@`, tanda kutip, atau simbol lain. Ditampilkan sebagai nama pengirim, di header email, dan sebagai tanda tangan. Nama yang meniru merek, bank, layanan pembayaran, instansi, atau layanan ini, atau yang mengandung kata terkait penipuan, judi, atau konten dewasa, akan ditolak.
+</ParamField>
+
+<ParamField body="contact" type="object | null">
+  Hanya satu kontak, berupa `{"type","value"}`. Mengatur satu tipe akan menggantikan tipe lainnya. Anda tidak pernah mengirim link: kami membuat link `wa.me` atau `t.me` sendiri.
+
+  <Expandable title="properti">
+    <ParamField body="type" type="string" required>
+      `"whatsapp"` atau `"telegram"`.
+    </ParamField>
+    <ParamField body="value" type="string" required>
+      Untuk `whatsapp`: nomor telepon seperti `0812-3456-7890` atau `+62 812-3456-7890` (hanya angka). Untuk `telegram`: username 5 sampai 32 karakter seperti `@majustore`; akun bot tidak diperbolehkan.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+## Respons
+
+Profil setelah perubahan. Nomor WhatsApp dikembalikan sebagai angka dengan kode negara (`0` di depan dibaca sebagai Indonesia, `62`). Username Telegram dikembalikan tanpa `@`.
+
+## Error
+
+Nilai yang ditolak mengembalikan `400 invalid_request` dengan `field` (`sender_name` atau `contact`) dan `reason`. Tidak ada yang disimpan jika ada field yang ditolak.
+
+| `field` | `reason` |
+| --- | --- |
+| `sender_name` | `too_short`, `too_long`, `invalid_characters`, `not_allowed` |
+| `contact` | `invalid_type`, `invalid_value`, `not_allowed` |
+
+```json 400
+{"error":{"code":"invalid_request","message":"\"sender_name\" is not allowed. Please choose a different name.","request_id":"req_...","field":"sender_name","reason":"not_allowed"}}
+```
+
+`400 invalid_request` juga dikembalikan untuk body yang bukan objek JSON atau request tanpa `sender_name` maupun `contact`. `503 temporarily_unavailable` dikembalikan jika pengaturan tidak dapat disimpan saat ini; coba lagi sebentar lagi.
+
+<RequestExample>
+
+```bash Set
+curl -X POST https://orders.balaipedia.com/v1/profile \
+  -H "Authorization: Bearer YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"sender_name":"Maju Store","contact":{"type":"whatsapp","value":"0812-3456-7890"}}'
+```
+
+```bash Clear
+# clear everything (back to the default emails)
+curl -X POST https://orders.balaipedia.com/v1/profile -H "Authorization: Bearer YOUR_KEY" -H "Content-Type: application/json" -d '{"sender_name":null,"contact":null}'
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200 OK
+{"object":"profile","sender_name":"Maju Store","contact":{"type":"whatsapp","value":"6281234567890"}}
+```
+
+```json 200 OK (cleared)
+{"object":"profile","sender_name":null,"contact":null}
+```
+
+</ResponseExample>

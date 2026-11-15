@@ -24,7 +24,7 @@ Error menggunakan kode status HTTP standar dan body ini. Cantumkan `request_id` 
 | 500 | `internal_error` | Error tak terduga. Coba ulang nanti (dengan Idempotency-Key yang sama jika Anda mengirimkannya). Jika berlanjut, hubungi support dengan `request_id`. |
 | 503 | `temporarily_unavailable`, `out_of_capacity`, `service_unavailable` | Kami tidak dapat memproses request saat ini. Tidak dikenakan biaya. `temporarily_unavailable` selalu menyertakan header `Retry-After: 30`. `out_of_capacity` berarti kami belum dapat memenuhi order baru saat ini (termasuk ketika kapasitas terakhir baru saja diambil oleh order lain yang dikirim pada saat bersamaan) dan menyertakan `Retry-After` yang lebih lama (300 detik): tunggu minimal selama itu. Dalam kedua kasus, coba ulang dengan Idempotency-Key yang sama jika Anda mengirimkannya. |
 
-Field tambahan opsional pada beberapa error: `reason`, `note`, dan `suggestion` (`422`), `balance`, `required`, dan `currency` (`402`).
+Field tambahan opsional pada beberapa error: `field`, `reason`, `note`, dan `suggestion` (`422`), `balance`, `required`, dan `currency` (`402`).
 
 ## Kegagalan per endpoint
 
@@ -47,6 +47,7 @@ Semua endpoint kecuali `/ping` dapat mengembalikan `401 unauthorized`, `403 acco
 | `POST /webhook` | `400 invalid_request`: `"url" must be a public https URL on port 443 (no IP addresses).` |
 | `POST /webhook/test` | `400 invalid_request`: `No webhook configured.` Atur webhook terlebih dahulu. |
 | `GET /webhook`, `POST /webhook/disable` | Hanya kegagalan umum di atas. |
+| `GET /profile`, `POST /profile` | POST: `400 invalid_request` untuk body yang bukan objek JSON, request tanpa `sender_name` maupun `contact`, atau nilai yang ditolak (lihat [Set email profile](/id/api-reference/set-profile#error)). Keduanya: `503 temporarily_unavailable` jika pengaturan tidak dapat dibaca atau disimpan saat ini; coba lagi sebentar lagi. |
 | URL apa pun | `404 not_found` (path tidak dikenal) atau `405 method_not_allowed` (header `Allow` mencantumkan method yang valid). Path tidak dikenal tidak pernah mengembalikan HTML. |
 
 ## Percobaan ulang
