@@ -6,6 +6,7 @@ description: "Rekomendasi untuk integrasi yang andal."
 - Kirim `Idempotency-Key` pada `POST /orders` (opsional, tetapi direkomendasikan agar order yang sama tidak pernah dibuat dua kali); gunakan kembali key yang sama saat mencoba ulang.
 - Simpan id order kami di samping order Anda sendiri. Gunakan `reference` untuk menghubungkannya. Simpan salinan Anda sendiri dari setiap order dan status finalnya: kami hanya menyimpannya agar dapat diambil selama 60 hari.
 - Gunakan [webhook](/id/webhooks) sebagai sumber utama status; polling hanya sebagai fallback.
+- Perlakukan `201` sebagai "diterima", bukan "terkirim". Tandai order sebagai final hanya pada `success` atau `error`, dan tangani `error` yang tiba tak lama setelah `201` (biayanya sudah dikembalikan).
 - Periksa status HTTP sebelum parsing body, dan tangani `5xx` non-JSON sebagai dapat dicoba ulang.
 - Baca `currency` dari respons alih-alih mengasumsikannya.
 - Perlakukan field yang tidak dikenal di respons sebagai aditif: kami dapat menambahkan field baru tanpa pemberitahuan.

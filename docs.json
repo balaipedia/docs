@@ -29,7 +29,8 @@
               "webhooks",
               "data-retention",
               "errors",
-              "best-practices"
+              "best-practices",
+              "buyer-emails"
             ]
           },
           {
@@ -88,7 +89,8 @@
               "id/webhooks",
               "id/data-retention",
               "id/errors",
-              "id/best-practices"
+              "id/best-practices",
+              "id/buyer-emails"
             ]
           },
           {

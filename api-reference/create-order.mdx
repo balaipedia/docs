@@ -46,6 +46,16 @@ Headers: `Authorization: Bearer YOUR_KEY` and `Content-Type: application/json` (
 
 Returns the [order object](/api-reference/get-order#the-order-object) with status `201 Created`, plus `balance`: your balance after the charge.
 
+## How an order is processed
+
+`201` means **accepted**, not delivered. The response is returned immediately, with status `processing`; the work that can be slow (the deeper mailbox check and sending the invitation) then runs in the background, so your request does not wait for it and does not time out. Follow the result with a [webhook](/webhooks) (recommended) or by polling [`GET /orders/{id}`](/api-reference/get-order).
+
+1. **Quick checks, before acceptance.** Format, domain typo, domain that can receive email, disposable and known-bad addresses, duplicate email, and your balance. A failure here is an immediate error response (`422`, `409` or `402`) and nothing is charged.
+2. **Accepted.** Your credit is charged and you get `201` with status `processing`.
+3. **Background.** A deeper mailbox-level check runs, then the invitation is sent. Normally this finishes within seconds. The order then becomes `success`, or `error` with a `note` and an automatic refund. You receive exactly one final webhook event either way.
+
+If an order ends as `error` in step 3, its `Idempotency-Key` is released, so you can send the same email again (with the same or a new key) as a new order once the buyer has fixed the address.
+
 ## Rejected by validation, `422` (nothing charged)
 
 ```json
@@ -53,6 +63,8 @@ Returns the [order object](/api-reference/get-order#the-order-object) with statu
 ```
 
 `reason` is a stable code you can branch on; `note` is a short human-readable explanation you can log or show.
+
+These `422` responses come from the **quick checks**. Deeper mailbox-level findings (for example `mailbox_not_found`, `mailbox_full`, `high_risk`) are found right after the order is accepted: there is no `422` for them. The order ends as `error`, the explanation is in `note`, and the charge is refunded. Handle both: a `422` at creation, and an `error` order (webhook or poll) shortly after.
 
 | reason | Meaning |
 |--------|---------|

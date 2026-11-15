@@ -46,6 +46,16 @@ Header: `Authorization: Bearer YOUR_KEY` dan `Content-Type: application/json` (w
 
 Mengembalikan [objek order](/id/api-reference/get-order#objek-order) dengan status `201 Created`, ditambah `balance`: saldo Anda setelah pengurangan biaya.
 
+## Cara order diproses
+
+`201` berarti **diterima**, bukan terkirim. Respons dikembalikan seketika dengan status `processing`; pekerjaan yang bisa lambat (pemeriksaan mailbox yang lebih mendalam dan pengiriman undangan) kemudian berjalan di latar belakang, sehingga request Anda tidak menunggunya dan tidak timeout. Pantau hasilnya dengan [webhook](/id/webhooks) (direkomendasikan) atau dengan polling [`GET /orders/{id}`](/id/api-reference/get-order).
+
+1. **Pemeriksaan cepat, sebelum diterima.** Format, typo pada domain, domain yang dapat menerima email, alamat sekali pakai dan yang diketahui bermasalah, email duplikat, serta saldo Anda. Kegagalan di tahap ini langsung menghasilkan respons error (`422`, `409` atau `402`) dan tidak ada biaya.
+2. **Diterima.** Kredit Anda didebet dan Anda menerima `201` dengan status `processing`.
+3. **Latar belakang.** Pemeriksaan tingkat mailbox yang lebih mendalam dijalankan, lalu undangan dikirim. Biasanya ini selesai dalam beberapa detik. Order kemudian menjadi `success`, atau `error` dengan `note` dan pengembalian dana otomatis. Dalam kedua kasus, Anda menerima tepat satu event webhook final.
+
+Jika order berakhir sebagai `error` pada langkah 3, `Idempotency-Key`-nya dilepas, sehingga Anda dapat mengirim email yang sama lagi (dengan key yang sama atau baru) sebagai order baru setelah pembeli memperbaiki alamatnya.
+
 ## Ditolak oleh validasi, `422` (tidak ada biaya)
 
 ```json
@@ -53,6 +63,8 @@ Mengembalikan [objek order](/id/api-reference/get-order#objek-order) dengan stat
 ```
 
 `reason` adalah kode stabil yang dapat Anda gunakan untuk percabangan; `note` adalah penjelasan singkat yang dapat dibaca manusia yang dapat Anda catat atau tampilkan.
+
+Respons `422` ini berasal dari **pemeriksaan cepat**. Temuan tingkat mailbox yang lebih mendalam (misalnya `mailbox_not_found`, `mailbox_full`, `high_risk`) ditemukan tepat setelah order diterima: tidak ada `422` untuk temuan tersebut. Order berakhir sebagai `error`, penjelasannya ada di `note`, dan biayanya dikembalikan. Tangani keduanya: `422` saat pembuatan, dan order `error` (melalui webhook atau polling) tak lama setelahnya.
 
 | reason | Arti |
 | --- | --- |

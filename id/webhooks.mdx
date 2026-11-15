@@ -14,7 +14,7 @@ Daripada polling, daftarkan endpoint HTTPS (host publik, port 443). Kami POST ev
 
 ## Event dan payload
 
-Event: `order.pending`, `order.success`, `order.error` (satu per perubahan status, dinamai sesuai status baru). Setelah `order.success` atau `order.error`, tidak ada event lebih lanjut yang dikirim untuk order tersebut. Objek `data` adalah [order](/id/api-reference/get-order#objek-order), termasuk `amount` dan `currency`.
+Event: `order.pending`, `order.success`, `order.error` (satu per perubahan status, dinamai sesuai status baru). Setelah `order.success` atau `order.error`, tidak ada event lebih lanjut yang dikirim untuk order tersebut. Objek `data` adalah [order](/id/api-reference/get-order#objek-order), termasuk `amount` dan `currency`. Karena order diproses di latar belakang, `order.error` (dengan `refunded: true`) dapat tiba dalam beberapa detik setelah respons `201`.
 
 ```http
 POST https://example.com/hooks/orders
