@@ -1,21 +1,178 @@
 ---
 title: "Emails your buyer receives"
 sidebarTitle: "Buyer emails"
-description: "What your buyer sees in their inbox after you place an order."
+description: "The invitation and reminder emails your buyer receives, in Indonesian and English."
 ---
 
-This is what your buyer sees in their inbox, in Indonesian (`"lang":"id"`) and English (`"lang":"en"`). The email has no store branding and no store WhatsApp contact: for any problem the buyer is told to contact **you**, the seller they bought from. The name and invitation link below are samples.
+Your buyer receives these emails in Indonesian (`"lang":"id"`) or English (`"lang":"en"`), depending on the `lang` you send when you [create an order](/api-reference/create-order). The emails are sent under the neutral sender name **Order Digital**. They have no store branding and no store WhatsApp contact: for any problem the buyer is told to contact **you**, the seller they bought from.
 
-<Frame caption="Invitation email in Indonesian (left) and English (right)">
-  <img
-    src="/images/buyer-email-preview.png"
-    alt="Invitation email preview in Indonesian and English"
-  />
-</Frame>
+| Email | When it is sent | Subject (`id`) | Subject (`en`) |
+| --- | --- | --- | --- |
+| A. Invitation | Right after the order is processed. | Cara Bergabung ke Tim Canva Pro Anda | How to Join Your Canva Pro Team |
+| B. Reminder: access ends soon | Automatically, a few days before the access ends. | Pengingat: Masa Aktif Canva Pro Anda Segera Berakhir | Reminder: Your Canva Pro Access Is Ending Soon |
+| C. Reminder: access has ended | Automatically, shortly after the access ended. | Masa Aktif Canva Pro Anda Telah Berakhir | Your Canva Pro Access Has Ended |
 
-| `lang` | Subject |
-| --- | --- |
-| `id` | Cara Bergabung ke Tim Canva Pro Anda |
-| `en` | How to Join Your Canva Pro Team |
+## Preview
 
-Set the language with the `lang` field when you [create an order](/api-reference/create-order).
+Choose an email and a language to see what your buyer sees. The buyer name, invitation link and date are samples.
+
+<BuyerEmailPreview lang="en" />
+
+export const BuyerEmailPreview = ({ lang }) => {
+  const DATA = {
+    id: {
+      label: "Indonesian",
+      inv: {
+        subj: "Cara Bergabung ke Tim Canva Pro Anda",
+        hi: <>Halo kak <b>Budi</b>,</>,
+        intro: <>Terima kasih atas pesanannya. Klik tombol di bawah untuk bergabung ke tim <b>Canva Pro</b>:</>,
+        btn: "Gabung ke Tim Canva Pro",
+        stepsT: "Langkah-langkah:",
+        steps: [
+          "Klik tombol di atas (bisa lewat HP atau laptop).",
+          "Masuk ke akun Canva kakak. Kalau belum punya, daftar dulu.",
+          <>Klik <b>Join team</b> / <b>Gabung ke tim</b>.</>,
+          "Selesai, fitur Pro langsung aktif."
+        ],
+        impT: "Penting:",
+        imp: [
+          "Pastikan akun Canva yang sedang login adalah akun yang ingin dijadikan anggota tim. Kalau salah akun, logout dulu atau buka lewat mode incognito.",
+          "Jangan bagikan link ini ke orang lain.",
+          "Jangan keluar dari tim selama masa langganan berjalan."
+        ],
+        fb: "Kalau tombol tidak bisa diklik, salin link ini ke browser:",
+        help: "Ada kendala? Silakan hubungi penjual tempat kakak membeli.",
+        reg: "Salam,"
+      },
+      soon: {
+        subj: "Pengingat: Masa Aktif Canva Pro Anda Segera Berakhir",
+        title: "Pengingat Masa Aktif",
+        lblDate: "Masa aktif berakhir pada",
+        date: "12 Desember 2026",
+        hi: "Halo kak,",
+        p1: <>Masa aktif <b>Canva Pro</b> kakak akan segera berakhir.</>,
+        contact: "Kalau kakak ingin order kembali, silakan hubungi penjual tempat kakak membeli."
+      },
+      ended: {
+        subj: "Masa Aktif Canva Pro Anda Telah Berakhir",
+        title: "Masa Aktif Berakhir",
+        lblDate: "Masa aktif berakhir pada",
+        date: "12 Desember 2026",
+        hi: "Halo kak,",
+        p1: <>Masa aktif <b>Canva Pro</b> kakak sudah berakhir.</>,
+        contact: "Kalau kakak ingin lanjut, silakan hubungi penjual tempat kakak membeli."
+      }
+    },
+    en: {
+      label: "English",
+      inv: {
+        subj: "How to Join Your Canva Pro Team",
+        hi: <>Hi <b>Budi</b>,</>,
+        intro: <>Thank you for your order. Click the button below to join your <b>Canva Pro</b> team:</>,
+        btn: "Join Canva Pro Team",
+        stepsT: "How to join:",
+        steps: [
+          "Click the button above (works on phone or computer).",
+          "Log in to your Canva account. If you don’t have one, sign up first.",
+          <>Click <b>Join team</b>.</>,
+          "Done! Your Pro features are now active."
+        ],
+        impT: "Important:",
+        imp: [
+          "Make sure you are logged in to the Canva account you want to add to the team. If it’s the wrong account, log out first or open the link in an incognito window.",
+          "Do not share this link with anyone else.",
+          "Do not leave the team while your subscription is active."
+        ],
+        fb: "If the button doesn’t work, copy this link into your browser:",
+        help: "Need help? Please contact the seller you purchased from.",
+        reg: "Best regards,"
+      },
+      soon: {
+        subj: "Reminder: Your Canva Pro Access Is Ending Soon",
+        title: "Access Reminder",
+        lblDate: "Your access ends on",
+        date: "December 12, 2026",
+        hi: "Hi,",
+        p1: <>Your <b>Canva Pro</b> access is ending soon.</>,
+        contact: "If you’d like to order again, please contact the seller you purchased from."
+      },
+      ended: {
+        subj: "Your Canva Pro Access Has Ended",
+        title: "Access Ended",
+        lblDate: "Your access ended on",
+        date: "December 12, 2026",
+        hi: "Hi,",
+        p1: <>Your <b>Canva Pro</b> access has ended.</>,
+        contact: "If you’d like to continue, please contact the seller you purchased from."
+      }
+    }
+  };
+  const KINDS = [
+    { key: "inv", label: "A. Invitation" },
+    { key: "soon", label: "B. Access ends soon" },
+    { key: "ended", label: "C. Access has ended" }
+  ];
+  const LINK = "https://www.canva.com/brand/join?token=SAMPLE";
+  const PURPLE = "#7c3aed";
+  const [kind, setKind] = useState("inv");
+  const [lg, setLg] = useState(lang === "id" ? "id" : "en");
+  const d = DATA[lg][kind];
+  const tab = (active) => ({
+    padding: "6px 12px", borderRadius: 8, font: "inherit", fontSize: 13, cursor: "pointer", color: "inherit",
+    border: active ? "2px solid " + PURPLE : "1px solid rgba(127,127,127,.35)",
+    background: active ? "rgba(124,58,237,.12)" : "transparent"
+  });
+  const p = { margin: "0 0 14px" };
+  return (
+    <div className="not-prose" style={{ border: "1px solid rgba(127,127,127,.25)", borderRadius: 12, padding: 16, display: "grid", gap: 12 }}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+        {KINDS.map((k) => (
+          <button key={k.key} type="button" style={tab(kind === k.key)} onClick={() => setKind(k.key)}>{k.label}</button>
+        ))}
+      </div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+        {["id", "en"].map((l) => (
+          <button key={l} type="button" style={tab(lg === l)} onClick={() => setLg(l)}>{DATA[l].label} <code>"lang":"{l}"</code></button>
+        ))}
+      </div>
+      <div style={{ fontSize: 13, opacity: 0.75 }}>From: Order Digital · Subject: {d.subj}</div>
+      <div style={{ background: "#f3f4f6", borderRadius: 10, padding: 14 }}>
+        <div style={{ background: "#ffffff", color: "#1f2430", borderRadius: 8, borderTop: "6px solid " + PURPLE, padding: "22px 24px", fontSize: 15, lineHeight: 1.6, maxWidth: 560, margin: "0 auto" }}>
+          {kind === "inv" ? (
+            <>
+              <p style={p}>{d.hi}</p>
+              <p style={p}>{d.intro}</p>
+              <div style={{ display: "inline-block", background: PURPLE, color: "#ffffff", fontWeight: 700, padding: "12px 28px", borderRadius: 8, marginBottom: 20 }}>{d.btn}</div>
+              <p style={{ margin: "0 0 8px", fontWeight: 700 }}>{d.stepsT}</p>
+              {d.steps.map((s, i) => (
+                <div key={i} style={{ display: "flex", gap: 12, marginBottom: 8 }}>
+                  <span style={{ flex: "0 0 22px", height: 22, borderRadius: 11, background: "#ede9fe", color: PURPLE, fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", marginTop: 2 }}>{i + 1}</span>
+                  <span style={{ minWidth: 0 }}>{s}</span>
+                </div>
+              ))}
+              <div style={{ background: "#fef7e0", borderLeft: "4px solid #f59e0b", borderRadius: 6, padding: "12px 16px", margin: "16px 0", fontSize: 14 }}>
+                <div style={{ fontWeight: 700, marginBottom: 4 }}>{d.impT}</div>
+                {d.imp.map((s, i) => (<div key={i}>• {s}</div>))}
+              </div>
+              <p style={{ margin: "0 0 4px", fontSize: 13, color: "#667085" }}>{d.fb}</p>
+              <p style={{ ...p, fontSize: 13, color: PURPLE, wordBreak: "break-all" }}>{LINK}</p>
+              <p style={p}>{d.help}</p>
+              <p style={{ margin: 0 }}>{d.reg}</p>
+            </>
+          ) : (
+            <>
+              <p style={{ margin: "0 0 14px", fontSize: 18, fontWeight: 700 }}>{d.title}</p>
+              <p style={p}>{d.hi}</p>
+              <p style={p}>{d.p1}</p>
+              <div style={{ background: "#f5f3ff", border: "1px solid #ddd6fe", borderRadius: 8, padding: "12px 16px", marginBottom: 14 }}>
+                <div style={{ fontSize: 13, color: "#667085" }}>{d.lblDate}</div>
+                <div style={{ fontWeight: 700, fontSize: 17 }}>{d.date}</div>
+              </div>
+              <p style={{ margin: 0 }}>{d.contact}</p>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
