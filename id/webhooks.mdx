@@ -10,7 +10,7 @@ Daripada polling, daftarkan endpoint HTTPS (host publik, port 443). Kami POST ev
 | 6 | `POST` | [`/webhook`](/id/api-reference/set-webhook) | `{"url":"https://..."}` | Webhook dengan `secret` signing baru (hanya ditampilkan sekali). POST lagi untuk mengubah URL atau merotasi secret. |
 | 7 | `GET` | [`/webhook`](/id/api-reference/get-webhook) | none | `{"object":"webhook","url":"https://...","enabled":true}` (`url` bernilai `null` dan `enabled` bernilai `false` jika belum diatur). |
 | 8 | `POST` | [`/webhook/disable`](/id/api-reference/disable-webhook) | none | `{"object":"webhook","url":null,"enabled":false}` |
-| 9 | `POST` | [`/webhook/test`](/id/api-reference/test-webhook) | none | Mengirim event `webhook.test` ke URL Anda dan mengembalikan `{"delivered":true}` atau `{"delivered":false}`. `400 invalid_request` jika tidak ada webhook yang dikonfigurasi. |
+| 9 | `POST` | [`/webhook/test`](/id/api-reference/test-webhook) | none | Mengirim event `webhook.test` (`data` kosong) ke URL Anda dan mengembalikan `{"delivered":true}` atau `{"delivered":false}`. `false` berarti endpoint Anda tidak menjawab `2xx` dalam 8 detik. `400 invalid_request` jika tidak ada webhook yang dikonfigurasi. |
 
 ## Event dan payload
 
@@ -29,6 +29,10 @@ X-BP-Signature: v1=3f2a...
 ## Verifikasi signature
 
 Verifikasi setiap request: hitung `HMAC-SHA256(secret, timestamp + "." + rawBody)` sebagai lowercase hex, bandingkan dengan nilai setelah `v1=` dalam waktu konstan, dan tolak timestamp yang lebih dari 5 menit. Gunakan body request yang **raw**.
+
+<Warning>
+  Gunakan secret persis seperti yang dikembalikan, termasuk awalan `whsec_`, sebagai key HMAC. Jangan hapus awalannya dan jangan decode dengan base64 (library untuk layanan webhook lain sering melakukannya).
+</Warning>
 
 <CodeGroup>
 
@@ -64,4 +68,4 @@ def verify(raw: bytes, ts: str, sig: str, secret: str) -> bool:
 
 ## Pengiriman dan percobaan ulang
 
-Respons dengan status `2xx` apa pun dalam 8 detik. Jika tidak, kami mencoba ulang dengan penundaan yang meningkat (hingga 6 kali percobaan selama kurang lebih sehari). Percobaan ulang menggunakan event `id` yang sama, jadi deduplikasi berdasarkan itu. Urutan pengiriman tidak dijamin; jika event tiba tidak berurutan, abaikan `order.pending` yang datang setelah `order.success` atau `order.error` final, atau ambil order untuk memastikan.
+Respons dengan status `2xx` apa pun dalam 8 detik. Redirect tidak diikuti: `3xx` dihitung sebagai pengiriman gagal, jadi daftarkan URL akhirnya (misalnya alamat `https` dengan path yang tepat, bukan yang melakukan redirect). Jika tidak, kami mencoba ulang dengan penundaan yang meningkat (total 6 kali percobaan, selama sekitar 15 jam). Percobaan ulang menggunakan event `id` yang sama (juga dikirim sebagai `X-BP-Delivery`), jadi deduplikasi berdasarkan itu. Urutan pengiriman tidak dijamin; jika event tiba tidak berurutan, abaikan `order.pending` yang datang setelah `order.success` atau `order.error` final, atau ambil order untuk memastikan.

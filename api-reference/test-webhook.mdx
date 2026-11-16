@@ -4,7 +4,7 @@ description: "Send a test event to your webhook."
 api: "POST https://orders.balaipedia.com/v1/webhook/test"
 ---
 
-Sends a `webhook.test` event to your URL and returns `{"delivered":true}` or `{"delivered":false}`. Returns `400 invalid_request` if no webhook is configured.
+Sends a `webhook.test` event (empty `data`) to your URL and returns `{"delivered":true}` or `{"delivered":false}`. `false` means your endpoint did not answer `2xx` within 8 seconds. Returns `400 invalid_request` if no webhook is configured.
 
 <RequestExample>
 

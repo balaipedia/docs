@@ -10,7 +10,7 @@ Instead of polling, register an HTTPS endpoint (public host, port 443). We POST 
 | 6 | `POST` | [`/webhook`](/api-reference/set-webhook) | `{"url":"https://..."}` | The webhook with a new signing `secret` (shown only once). POST again to change the URL or rotate the secret. |
 | 7 | `GET` | [`/webhook`](/api-reference/get-webhook) | none | `{"object":"webhook","url":"https://...","enabled":true}` (`url` is `null` and `enabled` `false` when none is set). |
 | 8 | `POST` | [`/webhook/disable`](/api-reference/disable-webhook) | none | `{"object":"webhook","url":null,"enabled":false}` |
-| 9 | `POST` | [`/webhook/test`](/api-reference/test-webhook) | none | Sends a `webhook.test` event to your URL and returns `{"delivered":true}` or `{"delivered":false}`. `400 invalid_request` if no webhook is configured. |
+| 9 | `POST` | [`/webhook/test`](/api-reference/test-webhook) | none | Sends a `webhook.test` event (empty `data`) to your URL and returns `{"delivered":true}` or `{"delivered":false}`. `false` means your endpoint did not answer `2xx` within 8 seconds. `400 invalid_request` if no webhook is configured. |
 
 ## Events and payload
 
@@ -29,6 +29,10 @@ X-BP-Signature: v1=3f2a...
 ## Verify signatures
 
 Verify every request: compute `HMAC-SHA256(secret, timestamp + "." + rawBody)` as lowercase hex, compare it to the value after `v1=` in constant time, and reject timestamps older than 5 minutes. Use the **raw** request body.
+
+<Warning>
+  Use the secret exactly as returned, including the `whsec_` prefix, as the HMAC key. Do not remove the prefix and do not base64-decode it (libraries made for other webhook services often do).
+</Warning>
 
 <CodeGroup>
 
@@ -64,4 +68,4 @@ def verify(raw: bytes, ts: str, sig: str, secret: str) -> bool:
 
 ## Delivery and retries
 
-Respond with any `2xx` within 8 seconds. Otherwise we retry with increasing delays (up to 6 attempts over roughly a day). Retries reuse the same event `id`, so deduplicate on it. Delivery order is not guaranteed; if events arrive out of order, ignore an `order.pending` that comes after a final `order.success` or `order.error`, or fetch the order to confirm.
+Respond with any `2xx` within 8 seconds. Redirects are not followed: a `3xx` counts as a failed delivery, so register the final URL (for example the `https` address with the exact path, not one that redirects). Otherwise we retry with increasing delays (6 attempts in total, over about 15 hours). Retries reuse the same event `id` (also sent as `X-BP-Delivery`), so deduplicate on it. Delivery order is not guaranteed; if events arrive out of order, ignore an `order.pending` that comes after a final `order.success` or `order.error`, or fetch the order to confirm.

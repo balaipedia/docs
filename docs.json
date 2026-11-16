@@ -30,7 +30,8 @@
               "data-retention",
               "errors",
               "best-practices",
-              "buyer-emails"
+              "buyer-emails",
+              "testing"
             ]
           },
           {
@@ -98,7 +99,8 @@
               "id/data-retention",
               "id/errors",
               "id/best-practices",
-              "id/buyer-emails"
+              "id/buyer-emails",
+              "id/testing"
             ]
           },
           {

@@ -1,0 +1,14 @@
+---
+title: "Testing your integration"
+sidebarTitle: "Testing"
+description: "Test your integration step by step, from the cheapest check to one real order."
+---
+
+There is no separate sandbox or test mode: every accepted `POST /orders` sends a real invitation and is charged at your normal price. Test in this order, from the cheapest step to the real one:
+
+1. [`GET /ping`](/api-reference/ping): confirms you can reach the API (no key needed).
+2. [`GET /balance`](/api-reference/get-balance): confirms your key works (`401` means it does not).
+3. [`POST /webhook`](/api-reference/set-webhook) then [`POST /webhook/test`](/api-reference/test-webhook): confirms your endpoint is reachable and your signature check is correct, without creating an order. You should get `{"delivered":true}`.
+4. One real order to an email address you control: confirms the full flow (`201 processing`, then `order.success` or a status you read with [`GET /orders/{id}`](/api-reference/get-order)). It costs one order.
+
+Before going live, also try a request with a wrong key (`401`) and a repeated `Idempotency-Key` with the same email (the same order comes back and you are not charged twice).

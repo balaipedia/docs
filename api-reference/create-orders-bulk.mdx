@@ -17,22 +17,22 @@ Headers: `Authorization: Bearer YOUR_KEY` and `Content-Type: application/json` (
 
 ## Body
 
-Choose **one** of the two forms.
+Choose **one** of the two options.
+
+<ParamField body="orders" type="array">
+  **Option 1 (recommended).** An array of orders: 1 to 10 objects with the same fields as [`POST /orders`](/api-reference/create-order#body): `email` (required, exactly one address), and optional `name`, `lang`, `reference`, `allow_duplicate`. Plain JSON, no line-break escaping, and you can set a `reference` per order.
+</ParamField>
 
 <ParamField body="emails" type="string">
-  **Form A (simplest).** One email per line. The separator is a line break only: write `\n` or `\r\n` inside the JSON string (a raw Enter key press cannot appear inside a JSON string, it must be written as the escape `\n` / `\r\n`; every JSON library does this for you when your text has line breaks). Spaces, commas and semicolons are not separators. Empty lines are ignored. Optional top-level `lang` and `allow_duplicate` (below) apply to every email.
+  **Option 2 (shortcut).** One string with one email per line. The separator is a line break only: write `\n` or `\r\n` inside the JSON string (a raw Enter key press cannot appear inside a JSON string, it must be written as the escape `\n` / `\r\n`; every JSON library does this for you when your text has line breaks). Spaces, commas and semicolons are not separators. Empty lines are ignored. Optional top-level `lang` and `allow_duplicate` (next two fields) apply to every email.
 </ParamField>
 
 <ParamField body="lang" default="en" type='"en" | "id"'>
-  Form A only (in Form B set `lang` inside each order). Language of the email sent to the buyers: English or Indonesian. Optional, default `"en"`. It applies to every email in the request. Any other value makes every item fail with `invalid_request`. This is independent of your account currency.
+  Option 2 only (in Option 1 set `lang` inside each order). Language of the email sent to the buyers: English or Indonesian. Optional, default `"en"`. It applies to every email in the request. Any other value makes every item fail with `invalid_request`. This is independent of your account currency.
 </ParamField>
 
 <ParamField body="allow_duplicate" default="false" type="boolean">
-  Form A only (in Form B set it inside each order). Optional, default `false`. By default an email that received an invitation recently is refused as `duplicate_order`; set `true` to send again (charged), only when the earlier invitation was one of your own orders. It must be `true` or `false`, otherwise the whole request is refused with `400 invalid_request`.
-</ParamField>
-
-<ParamField body="orders" type="array">
-  **Form B (per-order fields).** 1 to 10 objects with the same fields as [`POST /orders`](/api-reference/create-order#body): `email` (required, exactly one address), and optional `name`, `lang`, `reference`, `allow_duplicate`. Use this form when you need a `reference` per order.
+  Option 2 only (in Option 1 set it inside each order). Optional, default `false`. By default an email that received an invitation recently is refused as `duplicate_order`; set `true` to send again (charged), only when the earlier invitation was one of your own orders. It must be `true` or `false`, otherwise the whole request is refused with `400 invalid_request`.
 </ParamField>
 
 Send either `emails` or `orders`, never both (`400 invalid_request`). More than 10 emails or orders is refused with `400 too_many_orders`.
@@ -77,7 +77,44 @@ An item with `status: "error"` carries the same error `code` values as `POST /or
 
 <RequestExample>
 
-```bash curl (Form A)
+```bash curl (Option 1)
+curl -X POST https://orders.balaipedia.com/v1/orders/bulk \
+  -H "Authorization: Bearer YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: 5c1e7a90-2b64-4f1d-8a37-0d9e6b4c2f81" \
+  -d '{"orders":[
+    {"email":"buyer1@gmail.com","reference":"ORD-1"},
+    {"email":"buyer2@gmail.com","reference":"ORD-2","lang":"id","name":"Budi"}
+  ]}'
+```
+
+```javascript Node.js (Option 1)
+const res = await fetch("https://orders.balaipedia.com/v1/orders/bulk", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer " + process.env.BP_API_KEY,
+    "Content-Type": "application/json",
+    "Idempotency-Key": key   // e.g. a UUID you stored with this batch
+  },
+  body: JSON.stringify({ orders: [
+    { email: "buyer1@gmail.com", reference: "ORD-1" },
+    { email: "buyer2@gmail.com", reference: "ORD-2", lang: "id", name: "Budi" }
+  ] })
+});
+const data = await res.json();   // 200 = request processed: check every item in data.results
+```
+
+```python Python (Option 1)
+r = requests.post("https://orders.balaipedia.com/v1/orders/bulk",
+    headers={"Authorization": "Bearer " + os.environ["BP_API_KEY"], "Idempotency-Key": key},
+    json={"orders": [
+        {"email": "buyer1@gmail.com", "reference": "ORD-1"},
+        {"email": "buyer2@gmail.com", "reference": "ORD-2", "lang": "id", "name": "Budi"},
+    ]})
+data = r.json()   # 200 = request processed: check every item in data["results"]
+```
+
+```bash curl (Option 2)
 curl -X POST https://orders.balaipedia.com/v1/orders/bulk \
   -H "Authorization: Bearer YOUR_KEY" \
   -H "Content-Type: application/json" \
@@ -85,7 +122,7 @@ curl -X POST https://orders.balaipedia.com/v1/orders/bulk \
   -d '{"emails":"buyer1@gmail.com\r\nbuyer2@gmail.com\r\nbuyer3@gmail.com","lang":"en"}'
 ```
 
-```javascript Node.js (Form A)
+```javascript Node.js (Option 2)
 const emails = ["buyer1@gmail.com", "buyer2@gmail.com", "buyer3@gmail.com"];
 const res = await fetch("https://orders.balaipedia.com/v1/orders/bulk", {
   method: "POST",
@@ -98,22 +135,11 @@ const res = await fetch("https://orders.balaipedia.com/v1/orders/bulk", {
 });
 ```
 
-```python Python (Form A)
+```python Python (Option 2)
 emails = ["buyer1@gmail.com", "buyer2@gmail.com", "buyer3@gmail.com"]
 r = requests.post("https://orders.balaipedia.com/v1/orders/bulk",
     headers={"Authorization": "Bearer " + os.environ["BP_API_KEY"], "Idempotency-Key": key},
     json={"emails": "\r\n".join(emails), "lang": "id"})   # json= serialises the line breaks correctly
-```
-
-```bash curl (Form B)
-curl -X POST https://orders.balaipedia.com/v1/orders/bulk \
-  -H "Authorization: Bearer YOUR_KEY" \
-  -H "Content-Type: application/json" \
-  -H "Idempotency-Key: 5c1e7a90-2b64-4f1d-8a37-0d9e6b4c2f81" \
-  -d '{"orders":[
-    {"email":"buyer1@gmail.com","reference":"ORD-1"},
-    {"email":"buyer2@gmail.com","reference":"ORD-2","lang":"id","name":"Budi"}
-  ]}'
 ```
 
 </RequestExample>

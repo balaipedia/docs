@@ -1,17 +1,27 @@
 ---
 title: "Quickstart"
-description: "Check your balance, create your first order and track its status."
+description: "From your API key to your first order in four steps."
 ---
 
+Run these from a server or your terminal, and replace `YOUR_KEY` with the key we emailed you (see [Authentication](/authentication)).
+
 <Steps>
-  <Step title="Get your API key">
-    We email your key (`bpk_xxxxxxxx_...`) to you when your account is created. Store it in server-side secret storage. See [Authentication](/authentication).
+  <Step title="Check the service">
+    No key needed.
+
+    ```bash
+    curl https://orders.balaipedia.com/v1/ping
+    ```
+
+    Returns `{"ok":true,...}`.
   </Step>
-  <Step title="Check your balance">
+  <Step title="Check your key and balance">
     ```bash
     curl https://orders.balaipedia.com/v1/balance \
       -H "Authorization: Bearer YOUR_KEY"
     ```
+
+    A `200` with your balance means the key works; `401` means the key is missing or wrong.
 
     <CodeGroup>
 
@@ -26,20 +36,22 @@ description: "Check your balance, create your first order and track its status."
     </CodeGroup>
   </Step>
   <Step title="Create an order">
-    We recommend sending an `Idempotency-Key` header (optional; 8-64 characters, e.g. a UUID) so a retry never creates the same order twice.
+    <Warning>
+      This is a real order: it sends a real invitation and is charged at your price, so use an email address you control while testing.
+    </Warning>
 
     ```bash
     curl -X POST https://orders.balaipedia.com/v1/orders \
       -H "Authorization: Bearer YOUR_KEY" \
       -H "Content-Type: application/json" \
       -H "Idempotency-Key: 6f1c2f7e-9a4b-4d0e-8f3a-1b2c3d4e5f60" \
-      -d '{"email":"buyer@gmail.com","name":"Budi","lang":"en","reference":"ORD-10293"}'
+      -d '{"email":"you@example.com","reference":"TEST-1"}'
     ```
 
-    Save the returned `id` (e.g. `BP-7K3M9QXA`) with your own order. See [Create order](/api-reference/create-order).
+    You get `201` and an order with `"status":"processing"`. Keep its `id`. `201` means accepted, not delivered yet. See [Create order](/api-reference/create-order).
   </Step>
-  <Step title="Track the status">
-    Register a [webhook](/webhooks) to receive status changes, or poll [Get order status](/api-reference/get-order) as a fallback.
+  <Step title="Get the result">
+    Within seconds the order becomes `success`, or `error` with a `note` and an automatic refund. Either register a [webhook](/webhooks) (recommended) and wait for the event, or poll [`GET /orders/{id}`](/api-reference/get-order).
 
     ```bash
     curl https://orders.balaipedia.com/v1/orders/BP-7K3M9QXA \
@@ -47,3 +59,10 @@ description: "Check your balance, create your first order and track its status."
     ```
   </Step>
 </Steps>
+
+```text
+POST /orders  →  201 processing  →  order.success   (invitation accepted by the recipient's mail server)
+                                    or  order.error     (not delivered; charge refunded automatically)
+```
+
+Emails that fail the quick checks never become an order: you get an immediate `422` and nothing is charged. See also [Testing your integration](/testing).

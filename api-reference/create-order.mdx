@@ -64,7 +64,7 @@ If an order ends as `error` in step 3, its `Idempotency-Key` is released, so you
 
 `reason` is a stable code you can branch on; `note` is a short human-readable explanation you can log or show.
 
-These `422` responses come from the **quick checks**. Deeper mailbox-level findings (for example `mailbox_not_found`, `mailbox_full`, `high_risk`) are found right after the order is accepted: there is no `422` for them. The order ends as `error`, the explanation is in `note`, and the charge is refunded. Handle both: a `422` at creation, and an `error` order (webhook or poll) shortly after.
+These `422` responses come from the **quick checks** and from results we already know (for example a mailbox that was recently found full). A problem that only the deeper mailbox check can find (for example a mailbox that does not exist, or a high-risk address) is found right after the order is accepted instead: the order ends as `error`, the explanation is in `note`, and the charge is refunded. Handle both: a `422` at creation, and an `error` order (webhook or poll) shortly after.
 
 | reason | Meaning |
 |--------|---------|

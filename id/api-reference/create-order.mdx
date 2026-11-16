@@ -64,7 +64,7 @@ Jika order berakhir sebagai `error` pada langkah 3, `Idempotency-Key`-nya dilepa
 
 `reason` adalah kode stabil yang dapat Anda gunakan untuk percabangan; `note` adalah penjelasan singkat yang dapat dibaca manusia yang dapat Anda catat atau tampilkan.
 
-Respons `422` ini berasal dari **pemeriksaan cepat**. Temuan tingkat mailbox yang lebih mendalam (misalnya `mailbox_not_found`, `mailbox_full`, `high_risk`) ditemukan tepat setelah order diterima: tidak ada `422` untuk temuan tersebut. Order berakhir sebagai `error`, penjelasannya ada di `note`, dan biayanya dikembalikan. Tangani keduanya: `422` saat pembuatan, dan order `error` (melalui webhook atau polling) tak lama setelahnya.
+Respons `422` ini berasal dari **pemeriksaan cepat** dan dari hasil yang sudah kami ketahui (misalnya mailbox yang baru-baru ini diketahui penuh). Masalah yang hanya bisa ditemukan oleh pemeriksaan mailbox yang lebih mendalam (misalnya mailbox yang tidak ada, atau alamat berisiko tinggi) ditemukan tepat setelah order diterima: order berakhir sebagai `error`, penjelasannya ada di `note`, dan biayanya dikembalikan. Tangani keduanya: `422` saat pembuatan, dan order `error` (melalui webhook atau polling) tak lama setelahnya.
 
 | reason | Arti |
 | --- | --- |

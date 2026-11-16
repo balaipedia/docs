@@ -9,7 +9,7 @@ Send your key as a Bearer token. Keys look like `bpk_xxxxxxxx_...`. We email you
 Authorization: Bearer bpk_xxxxxxxx_your_secret_key
 ```
 
-The header `X-API-Key: bpk_...` is also accepted as an alternative.
+Always use the `Authorization: Bearer` header shown above. Requests without it are rejected.
 
 <Warning>
   The API key is for this API only. Our Telegram bot does **not** use it: the bot has its own one-time bot code (`bpt_...`, in the same email), so never send your API key to the bot. See [Telegram bot](/telegram-bot).

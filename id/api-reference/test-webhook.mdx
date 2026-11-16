@@ -4,7 +4,7 @@ description: "Kirim event uji ke webhook Anda."
 api: "POST https://orders.balaipedia.com/v1/webhook/test"
 ---
 
-Mengirim event `webhook.test` ke URL Anda dan mengembalikan `{"delivered":true}` atau `{"delivered":false}`. Mengembalikan `400 invalid_request` jika tidak ada webhook yang dikonfigurasi.
+Mengirim event `webhook.test` (`data` kosong) ke URL Anda dan mengembalikan `{"delivered":true}` atau `{"delivered":false}`. `false` berarti endpoint Anda tidak menjawab `2xx` dalam 8 detik. Mengembalikan `400 invalid_request` jika tidak ada webhook yang dikonfigurasi.
 
 <RequestExample>
 

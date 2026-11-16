@@ -9,7 +9,7 @@ Kirimkan key Anda sebagai Bearer token. Key terlihat seperti `bpk_xxxxxxxx_...`.
 Authorization: Bearer bpk_xxxxxxxx_your_secret_key
 ```
 
-Header `X-API-Key: bpk_...` juga diterima sebagai alternatif.
+Selalu gunakan header `Authorization: Bearer` seperti di atas. Request tanpa header ini ditolak.
 
 <Warning>
   API key ini hanya untuk API ini. Telegram bot kami **tidak** menggunakannya: bot memiliki kode bot satu kali pakai sendiri (`bpt_...`, di email yang sama), jadi jangan pernah mengirimkan API key Anda ke bot. Lihat [Telegram bot](/id/telegram-bot).

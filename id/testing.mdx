@@ -1,0 +1,14 @@
+---
+title: "Menguji integrasi Anda"
+sidebarTitle: "Pengujian"
+description: "Uji integrasi Anda langkah demi langkah, dari pemeriksaan termurah hingga satu order sungguhan."
+---
+
+Tidak ada sandbox atau mode uji terpisah: setiap `POST /orders` yang diterima mengirim undangan sungguhan dan didebet sesuai harga normal Anda. Uji dengan urutan berikut, dari langkah termurah hingga yang sungguhan:
+
+1. [`GET /ping`](/id/api-reference/ping): memastikan Anda bisa menjangkau API (tidak perlu key).
+2. [`GET /balance`](/id/api-reference/get-balance): memastikan key Anda berfungsi (`401` berarti tidak).
+3. [`POST /webhook`](/id/api-reference/set-webhook) lalu [`POST /webhook/test`](/id/api-reference/test-webhook): memastikan endpoint Anda bisa dijangkau dan pemeriksaan signature Anda benar, tanpa membuat order. Anda seharusnya mendapat `{"delivered":true}`.
+4. Satu order sungguhan ke alamat email milik Anda: memastikan alur lengkapnya (`201 processing`, lalu `order.success` atau status yang Anda baca dengan [`GET /orders/{id}`](/id/api-reference/get-order)). Ini memakan biaya satu order.
+
+Sebelum go live, coba juga request dengan key yang salah (`401`) dan `Idempotency-Key` yang diulang dengan email yang sama (order yang sama dikembalikan dan Anda tidak didebet dua kali).
