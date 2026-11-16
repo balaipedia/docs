@@ -11,7 +11,7 @@ Error menggunakan kode status HTTP standar dan body ini. Cantumkan `request_id` 
 
 | HTTP | code | Arti / apa yang harus dilakukan |
 | --- | --- | --- |
-| 400 | `invalid_json`, `invalid_request` | JSON tidak terbentuk dengan benar, field yang hilang atau tipe salah, atau nilai query yang tidak valid. Perbaiki request. Jangan coba ulang tanpa perubahan. |
+| 400 | `invalid_json`, `invalid_request`, `too_many_orders` | JSON tidak terbentuk dengan benar, field yang hilang atau tipe salah, atau nilai query yang tidak valid. Perbaiki request. Jangan coba ulang tanpa perubahan. |
 | 401 | `unauthorized` | API key hilang atau salah. |
 | 402 | `insufficient_credit` | Isi ulang saldo Anda. Respons mencakup `balance`, `required`, dan `currency`. |
 | 403 | `account_disabled`, `ip_not_allowed` | Hubungi support. |

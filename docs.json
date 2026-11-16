@@ -37,6 +37,7 @@
             "group": "Orders",
             "pages": [
               "api-reference/create-order",
+              "api-reference/create-orders-bulk",
               "api-reference/get-order",
               "api-reference/list-orders"
             ]
@@ -104,6 +105,7 @@
             "group": "Order",
             "pages": [
               "id/api-reference/create-order",
+              "id/api-reference/create-orders-bulk",
               "id/api-reference/get-order",
               "id/api-reference/list-orders"
             ]

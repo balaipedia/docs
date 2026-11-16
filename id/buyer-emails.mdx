@@ -4,32 +4,28 @@ sidebarTitle: "Email pembeli"
 description: "Email undangan dan pengingat yang diterima pembeli, dalam bahasa Indonesia dan Inggris."
 ---
 
-Pembeli Anda menerima email ini dalam bahasa Indonesia (`"lang":"id"`) atau bahasa Inggris (`"lang":"en"`), sesuai `lang` yang Anda kirim saat [membuat order](/id/api-reference/create-order). Secara default, email dikirim dengan nama pengirim netral **Order Digital**, tanpa branding toko maupun kontak WhatsApp toko: untuk masalah apa pun, pembeli diminta menghubungi **Anda**, penjual tempat mereka membeli. Jika Anda mengatur [profil email](/id/api-reference/set-profile), nama pengirim dan kontak WhatsApp atau Telegram Anda yang ditampilkan (contoh D dan E).
+Pembeli Anda menerima email ini dalam bahasa Indonesia (`"lang":"id"`) atau bahasa Inggris (`"lang":"en"`), sesuai `lang` yang Anda kirim saat [membuat order](/id/api-reference/create-order). Secara default, email dikirim dengan nama pengirim netral **Order Digital**, tanpa branding toko maupun kontak WhatsApp toko: untuk masalah apa pun, pembeli diminta menghubungi **Anda**, penjual tempat mereka membeli. Jika Anda mengatur [profil email](/id/api-reference/set-profile), nama pengirim dan kontak WhatsApp atau Telegram Anda yang ditampilkan (contoh C).
 
 | Email | Kapan dikirim | Subjek (`id`) | Subjek (`en`) |
 | --- | --- | --- | --- |
 | A. Undangan | Tepat setelah order diproses. | Cara Bergabung ke Tim Canva Pro Anda | How to Join Your Canva Pro Team |
-| B. Pengingat: masa aktif segera berakhir | Otomatis, beberapa hari sebelum masa aktif berakhir. | Pengingat: Masa Aktif Canva Pro Anda Segera Berakhir | Reminder: Your Canva Pro Access Is Ending Soon |
-| C. Pengingat: masa aktif telah berakhir | Otomatis, tak lama setelah masa aktif berakhir. | Masa Aktif Canva Pro Anda Telah Berakhir | Your Canva Pro Access Has Ended |
-| D. Undangan dengan profil email Anda (WhatsApp) | Sama seperti A, setelah Anda mengatur nama pengirim dan kontak WhatsApp. | Cara Bergabung ke Tim Canva Pro Anda | How to Join Your Canva Pro Team |
-| E. Pengingat dengan profil email Anda (Telegram) | Sama seperti B, pengingat memakai profil yang sama (di sini dengan kontak Telegram). | Pengingat: Masa Aktif Canva Pro Anda Segera Berakhir | Reminder: Your Canva Pro Access Is Ending Soon |
+| B. Pengingat: masa aktif telah berakhir | Otomatis, tak lama setelah masa aktif berakhir. | Masa Aktif Canva Pro Anda Telah Berakhir | Your Canva Pro Access Has Ended |
+| C. Undangan dengan profil email Anda (WhatsApp) | Sama seperti A, setelah Anda mengatur nama pengirim dan kontak WhatsApp. | Cara Bergabung ke Tim Canva Pro Anda | How to Join Your Canva Pro Team |
 
 ## Pratinjau
 
-Pilih email dan bahasa untuk melihat tampilan yang diterima pembeli. Nama pembeli, link undangan, dan tanggal hanya contoh. Contoh D dan E memakai nama profil contoh **Balai Pedia**.
+Pilih email dan bahasa untuk melihat tampilan yang diterima pembeli. Nama pembeli, link undangan, dan tanggal hanya contoh. Contoh C memakai nama profil contoh **Balai Pedia**.
 
 <BuyerEmailPreview lang="id" />
 
 export const BuyerEmailPreview = ({ lang }) => {
   const UI = lang === "id"
-    ? { from: "Dari", subj: "Subjek", kinds: ["A. Undangan", "B. Segera berakhir", "C. Telah berakhir", "D. Undangan + profil", "E. Pengingat + profil"], langs: { id: "Indonesia", en: "Inggris" } }
-    : { from: "From", subj: "Subject", kinds: ["A. Invitation", "B. Access ends soon", "C. Access has ended", "D. Invitation + profile", "E. Reminder + profile"], langs: { id: "Indonesian", en: "English" } };
+    ? { from: "Dari", subj: "Subjek", kinds: ["A. Undangan", "B. Telah berakhir", "C. Undangan + profil"], langs: { id: "Indonesia", en: "Inggris" } }
+    : { from: "From", subj: "Subject", kinds: ["A. Invitation", "B. Access has ended", "C. Invitation + profile"], langs: { id: "Indonesian", en: "English" } };
   const KINDS = [
     { key: "A", type: "inv", prof: false },
-    { key: "B", type: "soon", prof: false },
-    { key: "C", type: "ended", prof: false },
-    { key: "D", type: "inv", prof: true },
-    { key: "E", type: "soon", prof: true }
+    { key: "B", type: "ended", prof: false },
+    { key: "C", type: "inv", prof: true }
   ];
   const T = {
     id: {
@@ -56,16 +52,6 @@ export const BuyerEmailPreview = ({ lang }) => {
         helpR: "Ada kendala? Silakan hubungi penjual tempat kakak membeli.",
         help: "Ada kendala? Silakan hubungi kami lewat WhatsApp:",
         wa: "Chat via WhatsApp"
-      },
-      soon: {
-        subj: "Pengingat: Masa Aktif Canva Pro Anda Segera Berakhir",
-        title: "Pengingat Masa Aktif",
-        lblDate: "Masa aktif berakhir pada",
-        hi: "Halo kak,",
-        p1: <>Masa aktif <b>Canva Pro</b> kakak akan segera berakhir.</>,
-        contactR: "Kalau kakak ingin order kembali, silakan hubungi penjual tempat kakak membeli.",
-        contactT: "Kalau kakak ingin order kembali, silakan hubungi kami lewat Telegram:",
-        tg: "Order Lagi via Telegram"
       },
       ended: {
         subj: "Masa Aktif Canva Pro Anda Telah Berakhir",
@@ -102,16 +88,6 @@ export const BuyerEmailPreview = ({ lang }) => {
         helpR: "Need help? Please contact the seller you purchased from.",
         help: "Need help? Please contact us on WhatsApp:",
         wa: "Chat on WhatsApp"
-      },
-      soon: {
-        subj: "Reminder: Your Canva Pro Access Is Ending Soon",
-        title: "Access Reminder",
-        lblDate: "Your access ends on",
-        hi: "Hi,",
-        p1: <>Your <b>Canva Pro</b> access is ending soon.</>,
-        contactR: "If you’d like to order again, please contact the seller you purchased from.",
-        contactT: "If you’d like to order again, please contact us on Telegram:",
-        tg: "Order Again on Telegram"
       },
       ended: {
         subj: "Your Canva Pro Access Has Ended",

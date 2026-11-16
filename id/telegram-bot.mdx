@@ -25,7 +25,7 @@ Selain API, Anda dapat memesan dan memeriksa akun Anda dari Telegram bot kami. I
 
 ## Memesan
 
-- Kirimkan email pembeli di chat, **satu per baris, maksimal 5 per pesan**. Setiap email divalidasi dan didebet secara terpisah, persis seperti satu order API. Lebih dari 5 akan ditolak.
+- Kirimkan email pembeli di chat, **satu per baris, maksimal 5 per pesan**. Tulis masing-masing sebagai alamat lengkap tanpa spasi atau koma, misalnya `buyer@gmail.com`. Setiap email divalidasi dan didebet secara terpisah, persis seperti satu order API. Lebih dari 5 akan ditolak. Baris dengan spasi atau koma di dalam alamat ditolak sebagai `Invalid email format` dan tidak didebet; baris tanpa `@` diabaikan.
 - Nama pembeli opsional: tambahkan baris `nama: Budi` (atau `name: Budi`) saat mengirim satu email.
 - Kirimkan Order ID (misalnya `BP-7K3M9QXA`) untuk melihat status order tersebut. Hanya order Anda sendiri yang ditemukan.
 - Jika email baru-baru ini dipesan, bot memberitahukan dan menawarkan **Send again** (didebet) atau **Cancel**. Menekan tombol dua kali tidak pernah membuat dua order.
@@ -44,6 +44,6 @@ Selain API, Anda dapat memesan dan memeriksa akun Anda dari Telegram bot kami. I
 | `/batal` (`/cancel`) |  | Membatalkan tindakan saat ini. |
 | `/keluar` (`/logout`) |  | Keluar dan menghapus keyboard. |
 
-Keyboard tombol tetap terlihat dan Anda dapat menyembunyikan atau menampilkannya dengan ikon keyboard di samping kotak pesan. Perintah `/` lainnya dijawab dengan "Unknown command" diikuti menu. Pesan yang bukan perintah dan tidak berisi email yang valid dijawab dengan "No email detected. Send buyer emails, one per line."
+Keyboard tombol tetap terlihat dan Anda dapat menyembunyikan atau menampilkannya dengan ikon keyboard di samping kotak pesan. Perintah `/` lainnya dijawab dengan "Unknown command" diikuti menu. Pesan yang bukan perintah dan tidak berisi email yang valid dijawab dengan "No email detected. Send buyer emails, one per line, each a complete address with no spaces or commas." diikuti sebuah contoh.
 
 Pesan bot mengikuti pengaturan bahasa bot Anda (Indonesia atau Inggris). Ini terpisah dari bahasa email yang diterima pembeli Anda.

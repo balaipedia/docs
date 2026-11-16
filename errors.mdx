@@ -11,7 +11,7 @@ Errors use standard HTTP status codes and this body. Quote `request_id` when con
 
 | HTTP | code | Meaning / what to do |
 |------|------|----------------------|
-| 400 | `invalid_json`, `invalid_request` | Malformed JSON, a missing or wrongly typed field, or an invalid query value. Fix the request. Do not retry unchanged. |
+| 400 | `invalid_json`, `invalid_request`, `too_many_orders` | Malformed JSON, a missing or wrongly typed field, or an invalid query value. Fix the request. Do not retry unchanged. |
 | 401 | `unauthorized` | Missing or wrong API key. |
 | 402 | `insufficient_credit` | Top up your balance. Response includes `balance`, `required` and `currency`. |
 | 403 | `account_disabled`, `ip_not_allowed` | Contact support. |

@@ -1,0 +1,136 @@
+---
+title: "Create orders in bulk"
+sidebarTitle: "Bulk orders"
+description: "Create up to 5 orders in one request, one Order ID per email."
+api: "POST https://orders.balaipedia.com/v1/orders/bulk"
+---
+
+Send up to 5 orders in one request. Every email becomes its own order with its own Order ID (`BP-...`), charged and tracked exactly like [`POST /orders`](/api-reference/create-order), and just like sending several emails to the [Telegram bot](/telegram-bot). Orders are queued and delivered in the background, so the response comes back quickly with each order in `processing`.
+
+Headers: `Authorization: Bearer YOUR_KEY` and `Content-Type: application/json` (required), and `Idempotency-Key` (optional, recommended).
+
+## Headers
+
+<ParamField header="Idempotency-Key" type="string">
+  Optional, recommended. 8-64 characters, same format as `POST /orders`. It covers the whole request: repeat the same request with the same key and the same list of emails to get the original result back (header `Idempotent-Replayed: true`) without creating or charging anything again. The same key with a different list of emails is refused with `422 idempotency_conflict`.
+</ParamField>
+
+## Body
+
+Choose **one** of the two forms.
+
+<ParamField body="emails" type="string">
+  **Form A (simplest).** One email per line. The separator is a line break only: write `\n` or `\r\n` inside the JSON string (a raw Enter key press cannot appear inside a JSON string, it must be written as the escape `\n` / `\r\n`; every JSON library does this for you when your text has line breaks). Spaces, commas and semicolons are not separators. Empty lines are ignored. Optional top-level `lang` and `allow_duplicate` apply to every email.
+</ParamField>
+
+<ParamField body="orders" type="array">
+  **Form B (per-order fields).** 1 to 5 objects with the same fields as [`POST /orders`](/api-reference/create-order#body): `email` (required, exactly one address), and optional `name`, `lang`, `reference`, `allow_duplicate`. Use this form when you need a `reference` per order.
+</ParamField>
+
+Send either `emails` or `orders`, never both (`400 invalid_request`). More than 5 emails or orders is refused with `400 too_many_orders`.
+
+## Email format
+
+Write each email as one complete address with no spaces, commas or semicolons, for example `buyer@gmail.com` (spaces before or after the address are ignored and letters are lower-cased). An address with a space inside, a comma, or more than one address on a line, for example `buyer @ gmail .com` or `a@gmail.com,b@gmail.com`, is rejected immediately, before anything is charged, as that item's `email_rejected` with `reason: "invalid_format"`. The other emails in the same request are still processed. If a line contains two addresses, put each on its own line.
+
+## Response `200 OK`
+
+The request itself succeeded whenever you get `200`; check each item in `results`. Items are processed independently: one rejected email never blocks the others, and you are only charged for the items with `status: "created"`. Results are in the same order as your input, line by line or item by item (`index` is the position, starting at 0).
+
+`balance` is your balance after the whole request. Every created order then behaves like an order from `POST /orders`: poll [`GET /orders/{id}`](/api-reference/get-order) or use your [webhook](/webhooks), and a failed delivery is refunded automatically.
+
+## Per-item errors
+
+An item with `status: "error"` carries the same error `code` values as `POST /orders` (without `request_id`; use the one in the `X-Request-Id` header). Nothing is charged for it.
+
+| code | Meaning |
+| --- | --- |
+| `invalid_request` | The item is malformed: missing `email`, wrong `lang`, or a field of the wrong type. |
+| `duplicate_order` | The email already received an invitation recently (see `allow_duplicate`), is already being processed, or appears more than once in this request (only the first occurrence is used). |
+| `email_rejected` | The address failed validation. See `reason`, `note` and `suggestion`. A badly formatted address (spaces, commas, several addresses on one line) is rejected straight away with `reason: "invalid_format"`. |
+| `insufficient_credit` | Your balance ran out part-way through. Items are charged in order, so the earlier items may be created and the later ones fail. Includes `balance`, `required`, `currency`. |
+| `out_of_capacity`, `temporarily_unavailable` | We could not take the order right now. Not charged. Retry later (use the same `Idempotency-Key` only if every item failed; otherwise send just the failed emails in a new request). |
+
+## Whole-request errors
+
+| HTTP | code | Meaning |
+| --- | --- | --- |
+| 400 | `invalid_json`, `invalid_request`, `too_many_orders` | The body is not valid JSON or not an object, neither `emails` nor `orders` was sent (or both), they are empty or of the wrong type, a header is malformed, or there are more than 5 items (`too_many_orders`, includes `max`). |
+| 409 | `request_in_progress` | A request with this `Idempotency-Key` is still being processed. Wait a moment and send the same request again. |
+| 422 | `idempotency_conflict` | This `Idempotency-Key` was already used with a different list of emails. |
+| 429 | `rate_limited` | A bulk request counts as one request per email toward your per-minute limit (same as the Telegram bot). Wait for `Retry-After` seconds. |
+| 401 / 403 / 5xx | - | As for every endpoint (see [Errors and limits](/errors)). |
+
+## Retrying safely
+
+- Always send an `Idempotency-Key`. If the connection drops, send the same request again with the same key: you get the original result and are never charged twice.
+- Without a key, check `GET /orders?reference=...` before retrying, or an email that was already ordered is refused as `duplicate_order`.
+- To retry only the failed items, send a new request (new key) containing just those emails.
+
+<RequestExample>
+
+```bash curl (Form A)
+curl -X POST https://orders.balaipedia.com/v1/orders/bulk \
+  -H "Authorization: Bearer YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: 0b8d6c1e-5a77-4c0b-9d52-7e2f1a9c3d10" \
+  -d '{"emails":"buyer1@gmail.com\r\nbuyer2@gmail.com\r\nbuyer3@gmail.com","lang":"en"}'
+```
+
+```javascript Node.js (Form A)
+const emails = ["buyer1@gmail.com", "buyer2@gmail.com", "buyer3@gmail.com"];
+const res = await fetch("https://orders.balaipedia.com/v1/orders/bulk", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer " + process.env.BP_API_KEY,
+    "Content-Type": "application/json",
+    "Idempotency-Key": key   // e.g. a UUID you stored with this batch
+  },
+  body: JSON.stringify({ emails: emails.join("\r\n") })   // JSON.stringify writes the line breaks as \r\n
+});
+```
+
+```python Python (Form A)
+emails = ["buyer1@gmail.com", "buyer2@gmail.com", "buyer3@gmail.com"]
+r = requests.post("https://orders.balaipedia.com/v1/orders/bulk",
+    headers={"Authorization": "Bearer " + os.environ["BP_API_KEY"], "Idempotency-Key": key},
+    json={"emails": "\r\n".join(emails)})   # json= serialises the line breaks correctly
+```
+
+```bash curl (Form B)
+curl -X POST https://orders.balaipedia.com/v1/orders/bulk \
+  -H "Authorization: Bearer YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: 5c1e7a90-2b64-4f1d-8a37-0d9e6b4c2f81" \
+  -d '{"orders":[
+    {"email":"buyer1@gmail.com","reference":"ORD-1"},
+    {"email":"buyer2@gmail.com","reference":"ORD-2","lang":"id","name":"Budi"}
+  ]}'
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200 OK
+{
+  "object": "bulk_orders",
+  "total": 3,
+  "created": 2,
+  "failed": 1,
+  "balance": 42.2,
+  "results": [
+    {"index": 0, "status": "created", "order": {
+       "id": "BP-7K3M9QXA", "object": "order", "email": "buyer1@gmail.com", "reference": "ORD-1",
+       "status": "processing", "note": null, "created_at": "2026-11-12T03:10:00.000Z",
+       "completed_at": null, "expires_at": null, "amount": 0.15, "currency": "USD", "refunded": false},
+     "error": null},
+    {"index": 1, "status": "created", "order": { "id": "BP-3F8R2WNB", "...": "same shape as above" }, "error": null},
+    {"index": 2, "status": "error", "order": null,
+     "error": {"code": "email_rejected", "message": "The email address was rejected by validation. No credit was charged.",
+               "reason": "invalid_email", "note": "...", "suggestion": null}}
+  ]
+}
+```
+
+</ResponseExample>

@@ -23,7 +23,7 @@ Header: `Authorization: Bearer YOUR_KEY` dan `Content-Type: application/json` (w
 ## Body
 
 <ParamField body="email" type="string" required>
-  Email pembeli. Satu alamat per order.
+  Email pembeli. Satu alamat per order. Tulis sebagai alamat lengkap tanpa spasi, koma, atau titik koma, misalnya `buyer@gmail.com` (spasi sebelum atau sesudahnya diabaikan dan huruf diubah menjadi huruf kecil). Alamat dengan spasi atau koma di dalamnya, seperti `buyer @ gmail .com`, langsung ditolak dengan `422 email_rejected` (`reason: "invalid_format"`); dua alamat menghasilkan `400 invalid_request`. Untuk memesan bagi beberapa pembeli sekaligus (hingga 5), gunakan [`POST /orders/bulk`](/id/api-reference/create-orders-bulk).
 </ParamField>
 
 <ParamField body="name" type="string">
