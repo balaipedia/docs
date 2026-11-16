@@ -55,7 +55,7 @@ Nilai yang ditolak mengembalikan `400 invalid_request` dengan `field` (`sender_n
 curl -X POST https://orders.balaipedia.com/v1/profile \
   -H "Authorization: Bearer YOUR_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"sender_name":"Maju Store","contact":{"type":"whatsapp","value":"0812-3456-7890"}}'
+  -d '{"sender_name":"Balai Pedia","contact":{"type":"whatsapp","value":"0812-3456-7890"}}'
 ```
 
 ```bash Clear
@@ -68,7 +68,7 @@ curl -X POST https://orders.balaipedia.com/v1/profile -H "Authorization: Bearer 
 <ResponseExample>
 
 ```json 200 OK
-{"object":"profile","sender_name":"Maju Store","contact":{"type":"whatsapp","value":"6281234567890"}}
+{"object":"profile","sender_name":"Balai Pedia","contact":{"type":"whatsapp","value":"6281234567890"}}
 ```
 
 ```json 200 OK (cleared)

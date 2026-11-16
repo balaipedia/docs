@@ -7,10 +7,10 @@ Instead of polling, register an HTTPS endpoint (public host, port 443). We POST 
 
 | # | Method | URL | Body | Response |
 | --- | --- | --- | --- | --- |
-| 6 | `POST` | [`/webhook`](/api-reference/set-webhook) | `{"url":"https://..."}` | The webhook with a new signing `secret` (shown only once). POST again to change the URL or rotate the secret. |
-| 7 | `GET` | [`/webhook`](/api-reference/get-webhook) | none | `{"object":"webhook","url":"https://...","enabled":true}` (`url` is `null` and `enabled` `false` when none is set). |
-| 8 | `POST` | [`/webhook/disable`](/api-reference/disable-webhook) | none | `{"object":"webhook","url":null,"enabled":false}` |
-| 9 | `POST` | [`/webhook/test`](/api-reference/test-webhook) | none | Sends a `webhook.test` event (empty `data`) to your URL and returns `{"delivered":true}` or `{"delivered":false}`. `false` means your endpoint did not answer `2xx` within 8 seconds. `400 invalid_request` if no webhook is configured. |
+| 7 | `POST` | [`/webhook`](/api-reference/set-webhook) | `{"url":"https://..."}` | The webhook with a new signing `secret` (shown only once). POST again to change the URL or rotate the secret. |
+| 8 | `GET` | [`/webhook`](/api-reference/get-webhook) | none | `{"object":"webhook","url":"https://...","enabled":true}` (`url` is `null` and `enabled` `false` when none is set). |
+| 9 | `POST` | [`/webhook/disable`](/api-reference/disable-webhook) | none | `{"object":"webhook","url":null,"enabled":false}` |
+| 10 | `POST` | [`/webhook/test`](/api-reference/test-webhook) | none | Sends a `webhook.test` event (empty `data`) to your URL and returns `{"delivered":true}` or `{"delivered":false}`. `false` means your endpoint did not answer `2xx` within 8 seconds. `400 invalid_request` if no webhook is configured. |
 
 ## Events and payload
 
