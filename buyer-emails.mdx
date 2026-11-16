@@ -4,24 +4,25 @@ sidebarTitle: "Buyer emails"
 description: "The invitation and reminder emails your buyer receives, in Indonesian and English."
 ---
 
-Your buyer receives these emails in Indonesian (`"lang":"id"`) or English (`"lang":"en"`), depending on the `lang` you send when you [create an order](/api-reference/create-order). By default the emails are sent under the neutral sender name **Order Digital**, with no store branding and no store WhatsApp contact: for any problem the buyer is told to contact **you**, the seller they bought from. If you set an [email profile](/api-reference/set-profile), your sender name and your WhatsApp or Telegram contact are shown instead (example C).
+Your buyer receives these emails in Indonesian (`"lang":"id"`) or English (`"lang":"en"`), depending on the `lang` you send when you [create an order](/api-reference/create-order). By default the emails are sent under the neutral sender name **Order Digital**, with no store branding and no store WhatsApp contact: for any problem the buyer is told to contact **you**, the seller they bought from. If you set an [email profile](/api-reference/set-profile), your sender name and your WhatsApp or Telegram contact are shown instead (examples C and D).
 
 | Email | When it is sent | Subject (`id`) | Subject (`en`) |
 | --- | --- | --- | --- |
 | A. Invitation | Right after the order is processed. | Cara Bergabung ke Tim Canva Pro Anda | How to Join Your Canva Pro Team |
 | B. Reminder: access has ended | Automatically, shortly after the access ended. | Masa Aktif Canva Pro Anda Telah Berakhir | Your Canva Pro Access Has Ended |
 | C. Invitation with your email profile (WhatsApp) | Same as A, after you set a sender name and a WhatsApp contact. | Cara Bergabung ke Tim Canva Pro Anda | How to Join Your Canva Pro Team |
+| D. Reminder with your email profile (Telegram) | Same as B, reminders use the same profile (here with a Telegram contact). | Masa Aktif Canva Pro Anda Telah Berakhir | Your Canva Pro Access Has Ended |
 
 ## Preview
 
-Choose an email and a language to see what your buyer sees. The buyer name, invitation link and date are samples. Example C uses the sample profile name **Balai Pedia**.
+Choose an email and a language to see what your buyer sees. The buyer name, invitation link and date are samples. Examples C and D use the sample profile name **Balai Pedia**.
 
 <BuyerEmailPreview lang="en" />
 
 export const BuyerEmailPreview = ({ lang }) => {
   const UI = lang === "id"
-    ? { from: "Dari", subj: "Subjek", kinds: ["A. Undangan", "B. Telah berakhir", "C. Undangan + profil"], langs: { id: "Indonesia", en: "Inggris" } }
-    : { from: "From", subj: "Subject", kinds: ["A. Invitation", "B. Access has ended", "C. Invitation + profile"], langs: { id: "Indonesian", en: "English" } };
+    ? { from: "Dari", subj: "Subjek", kinds: ["A. Undangan", "B. Telah berakhir", "C. Undangan + profil", "D. Pengingat + profil"], langs: { id: "Indonesia", en: "Inggris" } }
+    : { from: "From", subj: "Subject", kinds: ["A. Invitation", "B. Access has ended", "C. Invitation + profile", "D. Reminder + profile"], langs: { id: "Indonesian", en: "English" } };
   const KINDS = [
     { key: "A", type: "inv", prof: false },
     { key: "B", type: "ended", prof: false },
@@ -59,7 +60,9 @@ export const BuyerEmailPreview = ({ lang }) => {
         lblDate: "Masa aktif berakhir pada",
         hi: "Halo kak,",
         p1: <>Masa aktif <b>Canva Pro</b> kakak sudah berakhir.</>,
-        contactR: "Kalau kakak ingin lanjut, silakan hubungi penjual tempat kakak membeli."
+        contactR: "Kalau kakak ingin lanjut, silakan hubungi penjual tempat kakak membeli.",
+        contactT: "Kalau kakak ingin order kembali, silakan hubungi kami lewat Telegram:",
+        tg: "Order Lagi via Telegram"
       },
       date: "12 Desember 2026",
       reg: "Salam,"
@@ -105,7 +108,9 @@ export const BuyerEmailPreview = ({ lang }) => {
         lblDate: "Your access ended on",
         hi: "Hi,",
         p1: <>Your <b>Canva Pro</b> access has ended.</>,
-        contactR: "If you’d like to continue, please contact the seller you purchased from."
+        contactR: "If you’d like to continue, please contact the seller you purchased from.",
+        contactT: "If you’d like to order again, please contact us on Telegram:",
+        tg: "Order Again on Telegram"
       },
       date: "12 December 2026",
       reg: "Best regards,"

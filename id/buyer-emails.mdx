@@ -4,28 +4,30 @@ sidebarTitle: "Email pembeli"
 description: "Email undangan dan pengingat yang diterima pembeli, dalam bahasa Indonesia dan Inggris."
 ---
 
-Pembeli Anda menerima email ini dalam bahasa Indonesia (`"lang":"id"`) atau bahasa Inggris (`"lang":"en"`), sesuai `lang` yang Anda kirim saat [membuat order](/id/api-reference/create-order). Secara default, email dikirim dengan nama pengirim netral **Order Digital**, tanpa branding toko maupun kontak WhatsApp toko: untuk masalah apa pun, pembeli diminta menghubungi **Anda**, penjual tempat mereka membeli. Jika Anda mengatur [profil email](/id/api-reference/set-profile), nama pengirim dan kontak WhatsApp atau Telegram Anda yang ditampilkan (contoh C).
+Pembeli Anda menerima email ini dalam bahasa Indonesia (`"lang":"id"`) atau bahasa Inggris (`"lang":"en"`), sesuai `lang` yang Anda kirim saat [membuat order](/id/api-reference/create-order). Secara default, email dikirim dengan nama pengirim netral **Order Digital**, tanpa branding toko maupun kontak WhatsApp toko: untuk masalah apa pun, pembeli diminta menghubungi **Anda**, penjual tempat mereka membeli. Jika Anda mengatur [profil email](/id/api-reference/set-profile), nama pengirim dan kontak WhatsApp atau Telegram Anda yang ditampilkan (contoh C dan D).
 
 | Email | Kapan dikirim | Subjek (`id`) | Subjek (`en`) |
 | --- | --- | --- | --- |
 | A. Undangan | Tepat setelah order diproses. | Cara Bergabung ke Tim Canva Pro Anda | How to Join Your Canva Pro Team |
 | B. Pengingat: masa aktif telah berakhir | Otomatis, tak lama setelah masa aktif berakhir. | Masa Aktif Canva Pro Anda Telah Berakhir | Your Canva Pro Access Has Ended |
 | C. Undangan dengan profil email Anda (WhatsApp) | Sama seperti A, setelah Anda mengatur nama pengirim dan kontak WhatsApp. | Cara Bergabung ke Tim Canva Pro Anda | How to Join Your Canva Pro Team |
+| D. Pengingat dengan profil email Anda (Telegram) | Sama seperti B, pengingat memakai profil yang sama (di sini dengan kontak Telegram). | Masa Aktif Canva Pro Anda Telah Berakhir | Your Canva Pro Access Has Ended |
 
 ## Pratinjau
 
-Pilih email dan bahasa untuk melihat tampilan yang diterima pembeli. Nama pembeli, link undangan, dan tanggal hanya contoh. Contoh C memakai nama profil contoh **Balai Pedia**.
+Pilih email dan bahasa untuk melihat tampilan yang diterima pembeli. Nama pembeli, link undangan, dan tanggal hanya contoh. Contoh C dan D memakai nama profil contoh **Balai Pedia**.
 
 <BuyerEmailPreview lang="id" />
 
 export const BuyerEmailPreview = ({ lang }) => {
   const UI = lang === "id"
-    ? { from: "Dari", subj: "Subjek", kinds: ["A. Undangan", "B. Telah berakhir", "C. Undangan + profil"], langs: { id: "Indonesia", en: "Inggris" } }
-    : { from: "From", subj: "Subject", kinds: ["A. Invitation", "B. Access has ended", "C. Invitation + profile"], langs: { id: "Indonesian", en: "English" } };
+    ? { from: "Dari", subj: "Subjek", kinds: ["A. Undangan", "B. Telah berakhir", "C. Undangan + profil", "D. Pengingat + profil"], langs: { id: "Indonesia", en: "Inggris" } }
+    : { from: "From", subj: "Subject", kinds: ["A. Invitation", "B. Access has ended", "C. Invitation + profile", "D. Reminder + profile"], langs: { id: "Indonesian", en: "English" } };
   const KINDS = [
     { key: "A", type: "inv", prof: false },
     { key: "B", type: "ended", prof: false },
-    { key: "C", type: "inv", prof: true }
+    { key: "C", type: "inv", prof: true },
+    { key: "D", type: "ended", prof: true }
   ];
   const T = {
     id: {
@@ -59,7 +61,9 @@ export const BuyerEmailPreview = ({ lang }) => {
         lblDate: "Masa aktif berakhir pada",
         hi: "Halo kak,",
         p1: <>Masa aktif <b>Canva Pro</b> kakak sudah berakhir.</>,
-        contactR: "Kalau kakak ingin lanjut, silakan hubungi penjual tempat kakak membeli."
+        contactR: "Kalau kakak ingin lanjut, silakan hubungi penjual tempat kakak membeli.",
+        contactT: "Kalau kakak ingin order kembali, silakan hubungi kami lewat Telegram:",
+        tg: "Order Lagi via Telegram"
       },
       date: "12 Desember 2026",
       reg: "Salam,"
@@ -95,7 +99,9 @@ export const BuyerEmailPreview = ({ lang }) => {
         lblDate: "Your access ended on",
         hi: "Hi,",
         p1: <>Your <b>Canva Pro</b> access has ended.</>,
-        contactR: "If you’d like to continue, please contact the seller you purchased from."
+        contactR: "If you’d like to continue, please contact the seller you purchased from.",
+        contactT: "If you’d like to order again, please contact us on Telegram:",
+        tg: "Order Again on Telegram"
       },
       date: "12 December 2026",
       reg: "Best regards,"
