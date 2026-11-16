@@ -26,7 +26,8 @@ export const BuyerEmailPreview = ({ lang }) => {
   const KINDS = [
     { key: "A", type: "inv", prof: false },
     { key: "B", type: "ended", prof: false },
-    { key: "C", type: "inv", prof: true }
+    { key: "C", type: "inv", prof: true },
+    { key: "D", type: "ended", prof: true }
   ];
   const T = {
     id: {
@@ -91,16 +92,6 @@ export const BuyerEmailPreview = ({ lang }) => {
         helpR: "Need help? Please contact the seller you purchased from.",
         help: "Need help? Please contact us on WhatsApp:",
         wa: "Chat on WhatsApp"
-      },
-      soon: {
-        subj: "Reminder: Your Canva Pro Access Is Ending Soon",
-        title: "Access Reminder",
-        lblDate: "Your access ends on",
-        hi: "Hi,",
-        p1: <>Your <b>Canva Pro</b> access is ending soon.</>,
-        contactR: "If you’d like to order again, please contact the seller you purchased from.",
-        contactT: "If you’d like to order again, please contact us on Telegram:",
-        tg: "Order Again on Telegram"
       },
       ended: {
         subj: "Your Canva Pro Access Has Ended",
