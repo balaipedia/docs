@@ -23,7 +23,7 @@ Headers: `Authorization: Bearer YOUR_KEY` and `Content-Type: application/json` (
 ## Body
 
 <ParamField body="email" type="string" required>
-  Buyer's email. One address per order. Write it as a complete address with no spaces, commas or semicolons, for example `buyer@gmail.com` (spaces before or after it are ignored and letters are lower-cased). An address with a space or comma inside, such as `buyer @ gmail .com`, is rejected right away with `422 email_rejected` (`reason: "invalid_format"`); two addresses give `400 invalid_request`. To order for several buyers at once (up to 5), use [`POST /orders/bulk`](/api-reference/create-orders-bulk).
+  Buyer's email. One address per order. Write it as a complete address with no spaces, commas or semicolons, for example `buyer@gmail.com` (spaces before or after it are ignored and letters are lower-cased). An address with a space or comma inside, such as `buyer @ gmail .com`, is rejected right away with `422 email_rejected` (`reason: "invalid_format"`); two addresses give `400 invalid_request`. To order for several buyers at once (up to 10), use [`POST /orders/bulk`](/api-reference/create-orders-bulk).
 </ParamField>
 
 <ParamField body="name" type="string">

@@ -1,11 +1,11 @@
 ---
 title: "Create orders in bulk"
 sidebarTitle: "Bulk orders"
-description: "Create up to 5 orders in one request, one Order ID per email."
+description: "Create up to 10 orders in one request, one Order ID per email."
 api: "POST https://orders.balaipedia.com/v1/orders/bulk"
 ---
 
-Send up to 5 orders in one request. Every email becomes its own order with its own Order ID (`BP-...`), charged and tracked exactly like [`POST /orders`](/api-reference/create-order), and just like sending several emails to the [Telegram bot](/telegram-bot). Orders are queued and delivered in the background, so the response comes back quickly with each order in `processing`.
+Send up to 10 orders in one request. Every email becomes its own order with its own Order ID (`BP-...`), charged and tracked exactly like [`POST /orders`](/api-reference/create-order), and just like sending several emails to the [Telegram bot](/telegram-bot). Orders are queued and delivered in the background, so the response comes back quickly with each order in `processing`.
 
 Headers: `Authorization: Bearer YOUR_KEY` and `Content-Type: application/json` (required), and `Idempotency-Key` (optional, recommended).
 
@@ -20,14 +20,22 @@ Headers: `Authorization: Bearer YOUR_KEY` and `Content-Type: application/json` (
 Choose **one** of the two forms.
 
 <ParamField body="emails" type="string">
-  **Form A (simplest).** One email per line. The separator is a line break only: write `\n` or `\r\n` inside the JSON string (a raw Enter key press cannot appear inside a JSON string, it must be written as the escape `\n` / `\r\n`; every JSON library does this for you when your text has line breaks). Spaces, commas and semicolons are not separators. Empty lines are ignored. Optional top-level `lang` and `allow_duplicate` apply to every email.
+  **Form A (simplest).** One email per line. The separator is a line break only: write `\n` or `\r\n` inside the JSON string (a raw Enter key press cannot appear inside a JSON string, it must be written as the escape `\n` / `\r\n`; every JSON library does this for you when your text has line breaks). Spaces, commas and semicolons are not separators. Empty lines are ignored. Optional top-level `lang` and `allow_duplicate` (below) apply to every email.
+</ParamField>
+
+<ParamField body="lang" default="en" type='"en" | "id"'>
+  Form A only (in Form B set `lang` inside each order). Language of the email sent to the buyers: English or Indonesian. Optional, default `"en"`. It applies to every email in the request. Any other value makes every item fail with `invalid_request`. This is independent of your account currency.
+</ParamField>
+
+<ParamField body="allow_duplicate" default="false" type="boolean">
+  Form A only (in Form B set it inside each order). Optional, default `false`. By default an email that received an invitation recently is refused as `duplicate_order`; set `true` to send again (charged), only when the earlier invitation was one of your own orders. It must be `true` or `false`, otherwise the whole request is refused with `400 invalid_request`.
 </ParamField>
 
 <ParamField body="orders" type="array">
-  **Form B (per-order fields).** 1 to 5 objects with the same fields as [`POST /orders`](/api-reference/create-order#body): `email` (required, exactly one address), and optional `name`, `lang`, `reference`, `allow_duplicate`. Use this form when you need a `reference` per order.
+  **Form B (per-order fields).** 1 to 10 objects with the same fields as [`POST /orders`](/api-reference/create-order#body): `email` (required, exactly one address), and optional `name`, `lang`, `reference`, `allow_duplicate`. Use this form when you need a `reference` per order.
 </ParamField>
 
-Send either `emails` or `orders`, never both (`400 invalid_request`). More than 5 emails or orders is refused with `400 too_many_orders`.
+Send either `emails` or `orders`, never both (`400 invalid_request`). More than 10 emails or orders is refused with `400 too_many_orders`.
 
 ## Email format
 
@@ -55,7 +63,7 @@ An item with `status: "error"` carries the same error `code` values as `POST /or
 
 | HTTP | code | Meaning |
 | --- | --- | --- |
-| 400 | `invalid_json`, `invalid_request`, `too_many_orders` | The body is not valid JSON or not an object, neither `emails` nor `orders` was sent (or both), they are empty or of the wrong type, a header is malformed, or there are more than 5 items (`too_many_orders`, includes `max`). |
+| 400 | `invalid_json`, `invalid_request`, `too_many_orders` | The body is not valid JSON or not an object, neither `emails` nor `orders` was sent (or both), they are empty or of the wrong type, a header is malformed, or there are more than 10 items (`too_many_orders`, includes `max`). |
 | 409 | `request_in_progress` | A request with this `Idempotency-Key` is still being processed. Wait a moment and send the same request again. |
 | 422 | `idempotency_conflict` | This `Idempotency-Key` was already used with a different list of emails. |
 | 429 | `rate_limited` | A bulk request counts as one request per email toward your per-minute limit (same as the Telegram bot). Wait for `Retry-After` seconds. |
@@ -86,7 +94,7 @@ const res = await fetch("https://orders.balaipedia.com/v1/orders/bulk", {
     "Content-Type": "application/json",
     "Idempotency-Key": key   // e.g. a UUID you stored with this batch
   },
-  body: JSON.stringify({ emails: emails.join("\r\n") })   // JSON.stringify writes the line breaks as \r\n
+  body: JSON.stringify({ emails: emails.join("\r\n"), lang: "id" })   // JSON.stringify writes the line breaks as \r\n
 });
 ```
 
@@ -94,7 +102,7 @@ const res = await fetch("https://orders.balaipedia.com/v1/orders/bulk", {
 emails = ["buyer1@gmail.com", "buyer2@gmail.com", "buyer3@gmail.com"]
 r = requests.post("https://orders.balaipedia.com/v1/orders/bulk",
     headers={"Authorization": "Bearer " + os.environ["BP_API_KEY"], "Idempotency-Key": key},
-    json={"emails": "\r\n".join(emails)})   # json= serialises the line breaks correctly
+    json={"emails": "\r\n".join(emails), "lang": "id"})   # json= serialises the line breaks correctly
 ```
 
 ```bash curl (Form B)

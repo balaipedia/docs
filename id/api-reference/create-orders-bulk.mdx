@@ -1,11 +1,11 @@
 ---
 title: "Buat order massal"
 sidebarTitle: "Order massal"
-description: "Buat hingga 5 order dalam satu request, satu Order ID per email."
+description: "Buat hingga 10 order dalam satu request, satu Order ID per email."
 api: "POST https://orders.balaipedia.com/v1/orders/bulk"
 ---
 
-Kirim hingga 5 order dalam satu request. Setiap email menjadi order tersendiri dengan Order ID sendiri (`BP-...`), didebet dan dilacak persis seperti [`POST /orders`](/id/api-reference/create-order), sama seperti mengirim beberapa email ke [Bot Telegram](/id/telegram-bot). Order diantrekan dan dikirim di latar belakang, sehingga respons kembali dengan cepat dan setiap order berstatus `processing`.
+Kirim hingga 10 order dalam satu request. Setiap email menjadi order tersendiri dengan Order ID sendiri (`BP-...`), didebet dan dilacak persis seperti [`POST /orders`](/id/api-reference/create-order), sama seperti mengirim beberapa email ke [Bot Telegram](/id/telegram-bot). Order diantrekan dan dikirim di latar belakang, sehingga respons kembali dengan cepat dan setiap order berstatus `processing`.
 
 Header: `Authorization: Bearer YOUR_KEY` dan `Content-Type: application/json` (wajib), serta `Idempotency-Key` (opsional, disarankan).
 
@@ -20,14 +20,22 @@ Header: `Authorization: Bearer YOUR_KEY` dan `Content-Type: application/json` (w
 Pilih **salah satu** dari dua bentuk berikut.
 
 <ParamField body="emails" type="string">
-  **Bentuk A (paling sederhana).** Satu email per baris. Pemisahnya hanya baris baru: tulis `\n` atau `\r\n` di dalam string JSON (tekanan tombol Enter tidak bisa muncul langsung di dalam string JSON, harus ditulis sebagai escape `\n` / `\r\n`; setiap library JSON melakukannya otomatis jika teks Anda berisi baris baru). Spasi, koma, dan titik koma bukan pemisah. Baris kosong diabaikan. `lang` dan `allow_duplicate` opsional di tingkat atas berlaku untuk setiap email.
+  **Bentuk A (paling sederhana).** Satu email per baris. Pemisahnya hanya baris baru: tulis `\n` atau `\r\n` di dalam string JSON (tekanan tombol Enter tidak bisa muncul langsung di dalam string JSON, harus ditulis sebagai escape `\n` / `\r\n`; setiap library JSON melakukannya otomatis jika teks Anda berisi baris baru). Spasi, koma, dan titik koma bukan pemisah. Baris kosong diabaikan. `lang` dan `allow_duplicate` opsional di tingkat atas (di bawah) berlaku untuk setiap email.
+</ParamField>
+
+<ParamField body="lang" default="en" type='"en" | "id"'>
+  Hanya untuk Bentuk A (di Bentuk B, atur `lang` di dalam setiap order). Bahasa email yang dikirim ke pembeli: Inggris atau Indonesia. Opsional, default `"en"`. Berlaku untuk setiap email dalam request. Nilai lain membuat setiap item gagal dengan `invalid_request`. Ini tidak bergantung pada mata uang akun Anda.
+</ParamField>
+
+<ParamField body="allow_duplicate" default="false" type="boolean">
+  Hanya untuk Bentuk A (di Bentuk B, atur di dalam setiap order). Opsional, default `false`. Secara default, email yang baru saja menerima undangan ditolak sebagai `duplicate_order`; atur `true` untuk mengirim lagi (didebet), hanya jika undangan sebelumnya adalah salah satu order Anda sendiri. Nilainya harus `true` atau `false`, jika tidak seluruh request ditolak dengan `400 invalid_request`.
 </ParamField>
 
 <ParamField body="orders" type="array">
-  **Bentuk B (field per order).** 1 sampai 5 objek dengan field yang sama seperti [`POST /orders`](/id/api-reference/create-order#body): `email` (wajib, tepat satu alamat), serta `name`, `lang`, `reference`, `allow_duplicate` yang opsional. Gunakan bentuk ini jika Anda memerlukan `reference` per order.
+  **Bentuk B (field per order).** 1 sampai 10 objek dengan field yang sama seperti [`POST /orders`](/id/api-reference/create-order#body): `email` (wajib, tepat satu alamat), serta `name`, `lang`, `reference`, `allow_duplicate` yang opsional. Gunakan bentuk ini jika Anda memerlukan `reference` per order.
 </ParamField>
 
-Kirim `emails` atau `orders`, jangan keduanya (`400 invalid_request`). Lebih dari 5 email atau order ditolak dengan `400 too_many_orders`.
+Kirim `emails` atau `orders`, jangan keduanya (`400 invalid_request`). Lebih dari 10 email atau order ditolak dengan `400 too_many_orders`.
 
 ## Format email
 
@@ -55,7 +63,7 @@ Item dengan `status: "error"` membawa nilai `code` error yang sama seperti `POST
 
 | HTTP | code | Arti |
 | --- | --- | --- |
-| 400 | `invalid_json`, `invalid_request`, `too_many_orders` | Body bukan JSON yang valid atau bukan objek, `emails` maupun `orders` tidak dikirim (atau keduanya dikirim), isinya kosong atau tipenya salah, header tidak valid, atau ada lebih dari 5 item (`too_many_orders`, mencakup `max`). |
+| 400 | `invalid_json`, `invalid_request`, `too_many_orders` | Body bukan JSON yang valid atau bukan objek, `emails` maupun `orders` tidak dikirim (atau keduanya dikirim), isinya kosong atau tipenya salah, header tidak valid, atau ada lebih dari 10 item (`too_many_orders`, mencakup `max`). |
 | 409 | `request_in_progress` | Request dengan `Idempotency-Key` ini masih diproses. Tunggu sebentar lalu kirim request yang sama lagi. |
 | 422 | `idempotency_conflict` | `Idempotency-Key` ini sudah dipakai dengan daftar email yang berbeda. |
 | 429 | `rate_limited` | Request massal dihitung sebagai satu request per email terhadap batas per menit Anda (sama seperti bot Telegram). Tunggu selama `Retry-After` detik. |
@@ -86,7 +94,7 @@ const res = await fetch("https://orders.balaipedia.com/v1/orders/bulk", {
     "Content-Type": "application/json",
     "Idempotency-Key": key   // e.g. a UUID you stored with this batch
   },
-  body: JSON.stringify({ emails: emails.join("\r\n") })   // JSON.stringify writes the line breaks as \r\n
+  body: JSON.stringify({ emails: emails.join("\r\n"), lang: "id" })   // JSON.stringify writes the line breaks as \r\n
 });
 ```
 
@@ -94,7 +102,7 @@ const res = await fetch("https://orders.balaipedia.com/v1/orders/bulk", {
 emails = ["buyer1@gmail.com", "buyer2@gmail.com", "buyer3@gmail.com"]
 r = requests.post("https://orders.balaipedia.com/v1/orders/bulk",
     headers={"Authorization": "Bearer " + os.environ["BP_API_KEY"], "Idempotency-Key": key},
-    json={"emails": "\r\n".join(emails)})   # json= serialises the line breaks correctly
+    json={"emails": "\r\n".join(emails), "lang": "id"})   # json= serialises the line breaks correctly
 ```
 
 ```bash curl (Form B)
