@@ -39,7 +39,7 @@ Send either `emails` or `orders`, never both (`400 invalid_request`). More than 
 
 ## Email format
 
-Write each email as one complete address with no spaces, commas or semicolons, for example `buyer@gmail.com` (spaces before or after the address are ignored and letters are lower-cased). An address with a space inside, a comma, or more than one address on a line, for example `buyer @ gmail .com` or `a@gmail.com,b@gmail.com`, is rejected immediately, before anything is charged, as that item's `email_rejected` with `reason: "invalid_format"`. The other emails in the same request are still processed. If a line contains two addresses, put each on its own line.
+Write each email as one complete address with no spaces, commas or semicolons, for example `buyer.name@gmail.com` (spaces before or after the address are ignored and letters are lower-cased). An address with a space inside, a comma, or more than one address on a line, for example `buyer @ gmail .com` or `a@gmail.com,b@gmail.com`, is rejected immediately, before anything is charged, as that item's `email_rejected` with `reason: "invalid_format"`. The other emails in the same request are still processed. If a line contains two addresses, put each on its own line.
 
 ## Response `200 OK`
 

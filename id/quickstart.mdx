@@ -45,13 +45,13 @@ Jalankan perintah berikut dari server atau terminal Anda, dan ganti `YOUR_KEY` d
       -H "Authorization: Bearer YOUR_KEY" \
       -H "Content-Type: application/json" \
       -H "Idempotency-Key: 6f1c2f7e-9a4b-4d0e-8f3a-1b2c3d4e5f60" \
-      -d '{"email":"you@example.com","reference":"TEST-1"}'
+      -d '{"email":"your.name@gmail.com","reference":"TEST-1"}'
     ```
 
     Anda mendapat `201` dan order dengan `"status":"processing"`. Simpan `id`-nya. `201` berarti diterima, belum terkirim. Lihat [Buat order](/id/api-reference/create-order).
   </Step>
   <Step title="Dapatkan hasilnya">
-    Dalam hitungan detik order menjadi `success`, atau `error` dengan `note` dan refund otomatis. Daftarkan [webhook](/id/webhooks) (disarankan) dan tunggu event-nya, atau polling [`GET /orders/{id}`](/id/api-reference/get-order).
+    Biasanya dalam hitungan detik order menjadi `success`, atau `error` dengan `note` dan refund otomatis (order bisa melewati `pending` jika pengiriman tertunda sebentar). Daftarkan [webhook](/id/webhooks) (disarankan) dan tunggu event-nya, atau polling [`GET /orders/{id}`](/id/api-reference/get-order).
 
     ```bash
     curl https://orders.balaipedia.com/v1/orders/BP-7K3M9QXA \
@@ -65,4 +65,4 @@ POST /orders  →  201 processing  →  order.success   (invitation accepted by 
                                     or  order.error     (not delivered; charge refunded automatically)
 ```
 
-Email yang gagal pemeriksaan cepat tidak pernah menjadi order: Anda langsung mendapat `422` dan tidak ada yang didebet. Lihat juga [Menguji integrasi Anda](/id/testing).
+Email yang langsung ditolak tidak pernah menjadi order: Anda langsung mendapat `422` dan tidak ada yang didebet. Lihat juga [Menguji integrasi Anda](/id/testing).

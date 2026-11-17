@@ -40,7 +40,7 @@ All endpoints except `/ping` can return `401 unauthorized`, `403 account_disable
 | Endpoint | Specific failures |
 | --- | --- |
 | `POST /orders` | See [Create order](/api-reference/create-order#other-failure-responses): `400`, `402`, `409`, `422`, `503`. |
-| `GET /orders/{id}` | `404 not_found`: `{"error":{"code":"not_found","message":"Order not found. Orders older than 60 days are no longer available.","request_id":"req_..."}}`. Orders of other accounts are also reported as not found. |
+| `GET /orders/{id}` | `404 not_found`: `{"error":{"code":"not_found","message":"Order not found. Check the order ID (for example BP-7K3M9QXA). Orders older than 60 days are no longer available.","request_id":"req_..."}}`. An order ID that is malformed, belongs to another account, or is older than 60 days is reported the same way. Make sure the `{id}` placeholder is replaced with a real order ID before sending. |
 | `GET /orders` | `400 invalid_request` for an unknown `status` filter (`Unknown "status" filter.`) or a bad `cursor` (`Invalid "cursor". Use the next_cursor value from the previous page.`). |
 | `GET /balance` | Only the common failures above. |
 | `GET /transactions` | `400 invalid_request` for a bad `cursor`. |

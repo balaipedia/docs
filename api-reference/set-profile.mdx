@@ -25,14 +25,14 @@ Optional. By default the emails to your buyers use a neutral sender name and tel
       `"whatsapp"` or `"telegram"`.
     </ParamField>
     <ParamField body="value" type="string" required>
-      For `whatsapp`: a phone number such as `0812-3456-7890` or `+62 812-3456-7890`; spaces, dashes, parentheses and a leading `+` are allowed. For `telegram`: a username of 5 to 32 characters such as `@balaipedia`; bot accounts are not allowed.
+      For `whatsapp`: a phone number with the country code, from any country, for example `+60 12-345 6789`, `+1 415 555 0132` or `+62 812-3456-7890`; spaces, dashes, parentheses and a leading `+` or `00` are allowed. The local form `0812-3456-7890` (a single leading `0`) is read as an Indonesian number and is accepted only on `IDR` accounts; on other accounts it is rejected with `invalid_value` so a foreign number is never saved as `+62` by mistake. For `telegram`: a username of 5 to 32 characters such as `@balaipedia`; bot accounts are not allowed.
     </ParamField>
   </Expandable>
 </ParamField>
 
 ## Response
 
-The profile after the change. WhatsApp numbers are returned as digits with the country code (a leading `0` is read as Indonesia, `62`). Telegram usernames are returned without `@`.
+The profile after the change. WhatsApp numbers are returned as digits with the country code and without `+` (for example `+60 12-345 6789` is returned as `60123456789`); always check the returned value. On `IDR` accounts a leading `0` is read as Indonesia (`62`). Telegram usernames are returned without `@`.
 
 ## Errors
 
@@ -55,7 +55,7 @@ A rejected value returns `400 invalid_request` with `field` (`sender_name` or `c
 curl -X POST https://orders.balaipedia.com/v1/profile \
   -H "Authorization: Bearer YOUR_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"sender_name":"Balai Pedia","contact":{"type":"whatsapp","value":"0812-3456-7890"}}'
+  -d '{"sender_name":"Balai Pedia","contact":{"type":"whatsapp","value":"+62 812-3456-7890"}}'
 ```
 
 ```bash Clear

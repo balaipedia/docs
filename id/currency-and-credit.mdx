@@ -22,7 +22,7 @@ Jumlah adalah angka JSON, bukan string. Jangan hard-code simbol mata uang: baca 
 
 Anda mengisi saldo kredit dalam mata uang akun Anda. Setiap order membebankan harga per order yang telah disepakati, didebet ketika order diterima.
 
-- Jika alamat email **gagal dalam pemeriksaan cepat** (format tidak valid, typo pada domain, domain yang tidak dapat menerima email, email sekali pakai, alamat yang diketahui bermasalah) request gagal dengan `422`, tidak ada order yang dibuat dan **tidak ada kredit yang didebet**.
-- Jika pemeriksaan mailbox yang lebih mendalam gagal tepat setelah order diterima (misalnya mailbox tidak ada atau penuh), order berakhir sebagai `error` dalam beberapa saat dan biayanya **dikembalikan secara otomatis** (`refunded: true`). Lihat [Cara order diproses](/id/api-reference/create-order#cara-order-diproses).
+- Jika alamat email **langsung ditolak** (format tidak valid, typo pada domain, alamat yang diketahui bermasalah atau email sekali pakai) request gagal dengan `422`, tidak ada order yang dibuat dan **tidak ada kredit yang didebet**.
+- Jika order yang sudah diterima berakhir sebagai `error` (misalnya mailbox tidak ada atau penuh), biayanya **dikembalikan secara otomatis** (`refunded: true`). Lihat [Cara order diproses](/id/api-reference/create-order#cara-order-diproses).
 - Jika kami tidak dapat memproses order karena alasan internal (`503`), kredit juga tidak didebet.
 - Jika saldo Anda terlalu rendah, request gagal dengan `402`.

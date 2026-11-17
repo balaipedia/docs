@@ -25,14 +25,14 @@ Opsional. Secara default, email ke pembeli Anda memakai nama pengirim netral dan
       `"whatsapp"` atau `"telegram"`.
     </ParamField>
     <ParamField body="value" type="string" required>
-      Untuk `whatsapp`: nomor telepon seperti `0812-3456-7890` atau `+62 812-3456-7890`; spasi, tanda hubung, tanda kurung, dan `+` di depan diperbolehkan. Untuk `telegram`: username 5 sampai 32 karakter seperti `@balaipedia`; akun bot tidak diperbolehkan.
+      Untuk `whatsapp`: nomor telepon dengan kode negara, dari negara mana pun, misalnya `+60 12-345 6789`, `+1 415 555 0132` atau `+62 812-3456-7890`; spasi, tanda hubung, tanda kurung, serta `+` atau `00` di depan diperbolehkan. Bentuk lokal `0812-3456-7890` (satu `0` di depan) dibaca sebagai nomor Indonesia dan hanya diterima pada akun `IDR`; pada akun lain ditolak dengan `invalid_value` agar nomor luar negeri tidak pernah tersimpan sebagai `+62` secara keliru. Untuk `telegram`: username 5 sampai 32 karakter seperti `@balaipedia`; akun bot tidak diperbolehkan.
     </ParamField>
   </Expandable>
 </ParamField>
 
 ## Respons
 
-Profil setelah perubahan. Nomor WhatsApp dikembalikan sebagai angka dengan kode negara (`0` di depan dibaca sebagai Indonesia, `62`). Username Telegram dikembalikan tanpa `@`.
+Profil setelah perubahan. Nomor WhatsApp dikembalikan sebagai angka dengan kode negara dan tanpa `+` (misalnya `+60 12-345 6789` dikembalikan sebagai `60123456789`); selalu periksa nilai yang dikembalikan. Pada akun `IDR`, `0` di depan dibaca sebagai Indonesia (`62`). Username Telegram dikembalikan tanpa `@`.
 
 ## Error
 
@@ -55,7 +55,7 @@ Nilai yang ditolak mengembalikan `400 invalid_request` dengan `field` (`sender_n
 curl -X POST https://orders.balaipedia.com/v1/profile \
   -H "Authorization: Bearer YOUR_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"sender_name":"Balai Pedia","contact":{"type":"whatsapp","value":"0812-3456-7890"}}'
+  -d '{"sender_name":"Balai Pedia","contact":{"type":"whatsapp","value":"+62 812-3456-7890"}}'
 ```
 
 ```bash Clear

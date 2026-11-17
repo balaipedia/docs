@@ -23,7 +23,7 @@ Header: `Authorization: Bearer YOUR_KEY` dan `Content-Type: application/json` (w
 ## Body
 
 <ParamField body="email" type="string" required>
-  Email pembeli. Satu alamat per order. Tulis sebagai alamat lengkap tanpa spasi, koma, atau titik koma, misalnya `buyer@gmail.com` (spasi sebelum atau sesudahnya diabaikan dan huruf diubah menjadi huruf kecil). Alamat dengan spasi atau koma di dalamnya, seperti `buyer @ gmail .com`, langsung ditolak dengan `422 email_rejected` (`reason: "invalid_format"`); dua alamat menghasilkan `400 invalid_request`. Untuk memesan bagi beberapa pembeli sekaligus (hingga 10), gunakan [`POST /orders/bulk`](/id/api-reference/create-orders-bulk).
+  Email pembeli. Satu alamat per order. Tulis sebagai alamat lengkap tanpa spasi, koma, atau titik koma, misalnya `buyer.name@gmail.com` (spasi sebelum atau sesudahnya diabaikan dan huruf diubah menjadi huruf kecil). Alamat dengan spasi atau koma di dalamnya, seperti `buyer @ gmail .com`, langsung ditolak dengan `422 email_rejected` (`reason: "invalid_format"`); dua alamat menghasilkan `400 invalid_request`. Untuk memesan bagi beberapa pembeli sekaligus (hingga 10), gunakan [`POST /orders/bulk`](/id/api-reference/create-orders-bulk).
 </ParamField>
 
 <ParamField body="name" type="string">
@@ -48,13 +48,15 @@ Mengembalikan [objek order](/id/api-reference/get-order#objek-order) dengan stat
 
 ## Cara order diproses
 
-`201` berarti **diterima**, bukan terkirim. Respons dikembalikan seketika dengan status `processing`; pekerjaan yang bisa lambat (pemeriksaan mailbox yang lebih mendalam dan pengiriman undangan) kemudian berjalan di latar belakang, sehingga request Anda tidak menunggunya dan tidak timeout. Pantau hasilnya dengan [webhook](/id/webhooks) (direkomendasikan) atau dengan polling [`GET /orders/{id}`](/id/api-reference/get-order).
+`201` berarti order **diterima dan didebet**, belum terkirim. Order selalu dimulai sebagai `processing` dan responsnya seketika. Pantau hasilnya dengan [webhook](/id/webhooks) (direkomendasikan) atau [`GET /orders/{id}`](/id/api-reference/get-order).
 
-1. **Pemeriksaan cepat, sebelum diterima.** Format, typo pada domain, domain yang dapat menerima email, alamat sekali pakai dan yang diketahui bermasalah, email duplikat, serta saldo Anda. Kegagalan di tahap ini langsung menghasilkan respons error (`422`, `409` atau `402`) dan tidak ada biaya.
-2. **Diterima.** Kredit Anda didebet dan Anda menerima `201` dengan status `processing`.
-3. **Latar belakang.** Pemeriksaan tingkat mailbox yang lebih mendalam dijalankan, lalu undangan dikirim. Biasanya ini selesai dalam beberapa detik. Order kemudian menjadi `success`, atau `error` dengan `note` dan pengembalian dana otomatis. Dalam kedua kasus, Anda menerima tepat satu event webhook final.
+```text
+processing  →  success                 (normal, usually within seconds)
+processing  →  pending  →  success    (delivery was briefly delayed, we keep retrying)
+processing  →  error                   (could not be delivered, charge refunded automatically)
+```
 
-Jika order berakhir sebagai `error` pada langkah 3, `Idempotency-Key`-nya dilepas, sehingga Anda dapat mengirim email yang sama lagi (dengan key yang sama atau baru) sebagai order baru setelah pembeli memperbaiki alamatnya.
+Anggap `processing` dan `pending` sebagai "sedang berjalan" dan bertindaklah hanya pada `success` atau `error`. Jika order berakhir sebagai `error`, `note` menjelaskan alasannya dan email yang sama dapat dikirim lagi sebagai order baru.
 
 ## Ditolak oleh validasi, `422` (tidak ada biaya)
 
@@ -64,7 +66,7 @@ Jika order berakhir sebagai `error` pada langkah 3, `Idempotency-Key`-nya dilepa
 
 `reason` adalah kode stabil yang dapat Anda gunakan untuk percabangan; `note` adalah penjelasan singkat yang dapat dibaca manusia yang dapat Anda catat atau tampilkan.
 
-Respons `422` ini berasal dari **pemeriksaan cepat** dan dari hasil yang sudah kami ketahui (misalnya mailbox yang baru-baru ini diketahui penuh). Masalah yang hanya bisa ditemukan oleh pemeriksaan mailbox yang lebih mendalam (misalnya mailbox yang tidak ada, atau alamat berisiko tinggi) ditemukan tepat setelah order diterima: order berakhir sebagai `error`, penjelasannya ada di `note`, dan biayanya dikembalikan. Tangani keduanya: `422` saat pembuatan, dan order `error` (melalui webhook atau polling) tak lama setelahnya.
+`422` berarti email langsung ditolak dan tidak ada yang didebet. Beberapa masalah baru ditemukan setelah order diterima; order tersebut berakhir sebagai `error` dengan `note` dan refund. Tangani keduanya.
 
 | reason | Arti |
 | --- | --- |
@@ -105,7 +107,7 @@ curl -X POST https://orders.balaipedia.com/v1/orders \
   -H "Authorization: Bearer YOUR_KEY" \
   -H "Content-Type: application/json" \
   -H "Idempotency-Key: 6f1c2f7e-9a4b-4d0e-8f3a-1b2c3d4e5f60" \
-  -d '{"email":"buyer@gmail.com","name":"Budi","lang":"en","reference":"ORD-10293"}'
+  -d '{"email":"buyer.name@gmail.com","name":"Budi","lang":"en","reference":"ORD-10293"}'
 ```
 
 ```javascript Node.js
@@ -118,7 +120,7 @@ const res = await fetch("https://orders.balaipedia.com/v1/orders", {
     "Content-Type": "application/json",
     "Idempotency-Key": key
   },
-  body: JSON.stringify({ email: "buyer@gmail.com", name: "Budi", lang: "en", reference: "ORD-10293" })
+  body: JSON.stringify({ email: "buyer.name@gmail.com", name: "Budi", lang: "en", reference: "ORD-10293" })
 });
 const text = await res.text();
 let data = null;
@@ -140,7 +142,7 @@ curl_setopt_array($ch, [
     "Content-Type: application/json",
     "Idempotency-Key: " . $key,   // e.g. a UUID you stored with your order
   ],
-  CURLOPT_POSTFIELDS => json_encode(["email" => "buyer@gmail.com", "name" => "Budi", "lang" => "en", "reference" => "ORD-10293"]),
+  CURLOPT_POSTFIELDS => json_encode(["email" => "buyer.name@gmail.com", "name" => "Budi", "lang" => "en", "reference" => "ORD-10293"]),
 ]);
 $body = curl_exec($ch);
 $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -154,7 +156,7 @@ key = str(uuid.uuid4())   # store it with your order so a retry reuses it
 r = requests.post(
     "https://orders.balaipedia.com/v1/orders",
     headers={"Authorization": "Bearer " + os.environ["BP_API_KEY"], "Idempotency-Key": key},
-    json={"email": "buyer@gmail.com", "name": "Budi", "lang": "en", "reference": "ORD-10293"},
+    json={"email": "buyer.name@gmail.com", "name": "Budi", "lang": "en", "reference": "ORD-10293"},
     timeout=30,
 )
 try: data = r.json()
@@ -169,7 +171,7 @@ except ValueError: data = None   # a 5xx from the platform may not be JSON: retr
 {
   "id": "BP-7K3M9QXA",
   "object": "order",
-  "email": "buyer@gmail.com",
+  "email": "buyer.name@gmail.com",
   "reference": "ORD-10293",
   "status": "processing",
   "note": null,

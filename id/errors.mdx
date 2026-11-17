@@ -40,7 +40,7 @@ Semua endpoint kecuali `/ping` dapat mengembalikan `401 unauthorized`, `403 acco
 | Endpoint | Kegagalan spesifik |
 | --- | --- |
 | `POST /orders` | Lihat [Buat order](/id/api-reference/create-order#respons-kegagalan-lainnya): `400`, `402`, `409`, `422`, `503`. |
-| `GET /orders/{id}` | `404 not_found`: `{"error":{"code":"not_found","message":"Order not found. Orders older than 60 days are no longer available.","request_id":"req_..."}}`. Order dari akun lain juga dilaporkan sebagai not found. |
+| `GET /orders/{id}` | `404 not_found`: `{"error":{"code":"not_found","message":"Order not found. Check the order ID (for example BP-7K3M9QXA). Orders older than 60 days are no longer available.","request_id":"req_..."}}`. Order ID yang formatnya salah, milik akun lain, atau berusia lebih dari 60 hari dilaporkan dengan cara yang sama. Pastikan placeholder `{id}` sudah diganti dengan order ID sungguhan sebelum mengirim. |
 | `GET /orders` | `400 invalid_request` untuk filter `status` yang tidak dikenal (`Unknown "status" filter.`) atau `cursor` yang buruk (`Invalid "cursor". Use the next_cursor value from the previous page.`). |
 | `GET /balance` | Hanya kegagalan umum di atas. |
 | `GET /transactions` | `400 invalid_request` untuk `cursor` yang buruk. |

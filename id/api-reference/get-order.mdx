@@ -70,8 +70,8 @@ Mengembalikan satu order yang dibuat dalam 60 hari terakhir (lihat [Data retenti
 
 | status | Arti | Final? |
 | --- | --- | --- |
-| `pending` | Pengiriman tertunda sementara dan kami sedang mencoba ulang. Menjadi `error` jika masih belum terkirim setelah 72 jam. | Tidak |
-| `processing` | Diterima dan didebet. Pemeriksaan mailbox dan pengiriman berjalan di latar belakang (biasanya beberapa detik), lalu kami menunggu konfirmasi pengiriman. | Tidak |
+| `pending` | Pengiriman tertunda sementara dan kami terus mencoba ulang. Berakhir sebagai `success`, atau `error` jika masih belum terkirim setelah 72 jam. | Tidak |
+| `processing` | Diterima dan didebet. Sedang dikirim (biasanya beberapa detik). Setiap order baru dimulai di sini. | Tidak |
 | `success` | Email undangan diterima oleh server email penerima. (Ini tidak berarti pembeli sudah bergabung.) | Ya |
 | `error` | Undangan tidak dapat dikirim, dengan alasan apa pun. Kami menangani penyebabnya di sisi kami; periksa `refunded` untuk melihat apakah biaya telah dikembalikan. | Ya |
 
@@ -97,7 +97,7 @@ curl https://orders.balaipedia.com/v1/orders/BP-7K3M9QXA \
 <ResponseExample>
 
 ```json 200 OK
-{"id":"BP-7K3M9QXA","object":"order","email":"buyer@gmail.com","reference":"ORD-10293","status":"success","note":null,"created_at":"2026-11-12T03:10:00.000Z","completed_at":"2026-11-12T03:10:09.000Z","expires_at":"2026-12-12","amount":0.15,"currency":"USD","refunded":false}
+{"id":"BP-7K3M9QXA","object":"order","email":"buyer.name@gmail.com","reference":"ORD-10293","status":"success","note":null,"created_at":"2026-11-12T03:10:00.000Z","completed_at":"2026-11-12T03:10:09.000Z","expires_at":"2026-12-12","amount":0.15,"currency":"USD","refunded":false}
 ```
 
 </ResponseExample>

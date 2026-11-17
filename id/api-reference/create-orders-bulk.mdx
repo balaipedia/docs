@@ -39,7 +39,7 @@ Kirim `emails` atau `orders`, jangan keduanya (`400 invalid_request`). Lebih dar
 
 ## Format email
 
-Tulis setiap email sebagai satu alamat lengkap tanpa spasi, koma, atau titik koma, misalnya `buyer@gmail.com` (spasi sebelum atau sesudah alamat diabaikan dan huruf diubah menjadi huruf kecil). Alamat dengan spasi di dalamnya, koma, atau lebih dari satu alamat dalam satu baris, misalnya `buyer @ gmail .com` atau `a@gmail.com,b@gmail.com`, langsung ditolak sebelum ada yang didebet, sebagai `email_rejected` untuk item tersebut dengan `reason: "invalid_format"`. Email lain dalam request yang sama tetap diproses. Jika satu baris berisi dua alamat, letakkan masing-masing di barisnya sendiri.
+Tulis setiap email sebagai satu alamat lengkap tanpa spasi, koma, atau titik koma, misalnya `buyer.name@gmail.com` (spasi sebelum atau sesudah alamat diabaikan dan huruf diubah menjadi huruf kecil). Alamat dengan spasi di dalamnya, koma, atau lebih dari satu alamat dalam satu baris, misalnya `buyer @ gmail .com` atau `a@gmail.com,b@gmail.com`, langsung ditolak sebelum ada yang didebet, sebagai `email_rejected` untuk item tersebut dengan `reason: "invalid_format"`. Email lain dalam request yang sama tetap diproses. Jika satu baris berisi dua alamat, letakkan masing-masing di barisnya sendiri.
 
 ## Respons `200 OK`
 

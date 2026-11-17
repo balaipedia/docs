@@ -22,7 +22,7 @@ Amounts are JSON numbers, not strings. Do not hard-code a currency symbol: read 
 
 You top up a credit balance in your account currency. Each order costs your agreed price per order, deducted when the order is accepted.
 
-- If an email address **fails the quick checks** (invalid format, domain typo, domain that cannot receive email, disposable, known-bad address) the request fails with `422`, no order is created and **no credit is charged**.
-- If the deeper mailbox check fails right after the order was accepted (for example the mailbox does not exist or is full), the order ends as `error` within moments and the charge is **refunded automatically** (`refunded: true`). See [How an order is processed](/api-reference/create-order#how-an-order-is-processed).
+- If an email address **is rejected right away** (invalid format, domain typo, known-bad or disposable address) the request fails with `422`, no order is created and **no credit is charged**.
+- If an accepted order ends as `error` (for example the mailbox does not exist or is full), the charge is **refunded automatically** (`refunded: true`). See [How an order is processed](/api-reference/create-order#how-an-order-is-processed).
 - If we cannot process an order for an internal reason (`503`), no credit is charged either.
 - If your balance is too low, the request fails with `402`.
