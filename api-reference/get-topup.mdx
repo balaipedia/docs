@@ -1,0 +1,22 @@
+---
+title: "Get top-up"
+description: "Check a top-up (pending, paid or expired)."
+api: "GET https://orders.balaipedia.com/v1/topups/{id}"
+---
+
+Check one top-up. `status` is `pending`, `paid` or `expired`. Poll this endpoint after paying to see `paid`. See [Top up with USDT](/api-reference/create-topup) for the rules.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The top-up ID returned by `POST /topups`, e.g. `TP-7K3M9QXA`.
+</ParamField>
+
+<RequestExample>
+
+```bash curl
+curl https://orders.balaipedia.com/v1/topups/TP-7K3M9QXA \
+  -H "Authorization: Bearer YOUR_KEY"
+```
+
+</RequestExample>

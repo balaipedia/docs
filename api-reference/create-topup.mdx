@@ -1,0 +1,54 @@
+---
+title: "Top up with USDT"
+description: "Start a USDT (BEP20) top-up. Returns the wallet address and exact amount to pay."
+api: "POST https://orders.balaipedia.com/v1/topups"
+---
+
+Add credit automatically by paying USDT on the **BNB Smart Chain (BEP20)** network. No other network or coin is accepted. Credit is added by itself a few minutes after the payment is confirmed on chain.
+
+## Body
+
+<ParamField body="amount" type="number" required>
+  The credit you want to receive. For a `USD` account, `amount` is dollars with at most 2 decimals; for an `IDR` account it is whole rupiah.
+</ParamField>
+
+## Rules
+
+- **Send exactly `pay.amount`, including the last 3 decimals.** The small extra digits identify your payment, and they are credited to you too (`credit_on_payment` already includes them). A different amount cannot be matched automatically.
+- If your exchange or wallet takes a withdrawal fee, add it on top so that the full `pay.amount` arrives.
+- **IDR accounts:** the credit is the USDT received multiplied by `exchange_rate.per_usdt`, which is fixed when the top-up is created.
+- `status` is `pending`, `paid` or `expired`. A top-up is valid for **6 hours**; after that it is `expired` and no longer checked. A payment sent after it expired is not credited automatically (contact support with the transaction hash). A payment sent before it expired is still credited a few minutes after it is confirmed on chain.
+- Creating a top-up with the same amount while one is still open returns the existing one with `200` instead of `201`. At most 3 top-ups can be open at once.
+- Poll [`GET /topups/{id}`](/api-reference/get-topup) to see `paid`. The credit also appears in [transactions](/api-reference/list-transactions) with `topup_id`.
+
+## Errors
+
+| HTTP | `code` | Meaning |
+| --- | --- | --- |
+| 400 | `invalid_request` | `field: "amount"`, `reason`: `too_small` or `too_large`. |
+| 429 | `too_many_pending_topups` | Too many open top-ups. |
+| 503 | `service_unavailable` | Service unavailable. |
+| 503 | `rate_unavailable` | IDR exchange rate temporarily unavailable, `Retry-After: 300`. |
+| 503 | `temporarily_unavailable` | `Retry-After: 30`. |
+
+<RequestExample>
+
+```bash curl
+curl -X POST https://orders.balaipedia.com/v1/topups \
+  -H "Authorization: Bearer YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"amount": 25}'
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 201 Created
+{"object":"topup","id":"TP-7K3M9QXA","status":"pending","currency":"USD","amount_requested":25,
+ "pay":{"asset":"USDT","network":"BEP20","network_name":"BNB Smart Chain (BEP20)","address":"0x...","amount":"25.037000","token_contract":"0x..."},
+ "exchange_rate":null,"credit_on_payment":25.03,
+ "created_at":"...","expires_at":"...","paid_at":null,"credited":null,"tx":null}
+```
+
+</ResponseExample>

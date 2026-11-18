@@ -18,7 +18,7 @@ Top-up, biaya, pengembalian dana, dan penyesuaian, yang terbaru pertama. Saldo k
 
 ## Respons
 
-`type` adalah salah satu dari `topup`, `charge`, `refund`, `adjustment`. Biaya adalah angka negatif. `order_id` bersifat nullable (top-up tidak memiliki order).
+`type` adalah salah satu dari `topup`, `charge`, `refund`, `adjustment`. Biaya adalah angka negatif. `order_id` diisi untuk biaya dan pengembalian dana; top-up membawa `topup_id` sebagai gantinya.
 
 <RequestExample>
 

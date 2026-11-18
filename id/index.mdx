@@ -29,6 +29,9 @@ Base URL: `https://orders.balaipedia.com/v1`. Semua request dan respons adalah J
 | 11 | `GET` | [`/ping`](/id/api-reference/ping) | Health check (tanpa autentikasi). |
 | 12 | `GET` | [`/profile`](/id/api-reference/get-profile) | Membaca profil email Anda (nama pengirim dan kontak). |
 | 13 | `POST` | [`/profile`](/id/api-reference/set-profile) | Mengatur atau menghapus profil email Anda. |
+| 14 | `POST` | [`/topups`](/id/api-reference/create-topup) | Memulai top-up USDT (BEP20). Mengembalikan alamat wallet dan jumlah persis yang harus dibayar. |
+| 15 | `GET` | [`/topups/{id}`](/id/api-reference/get-topup) | Memeriksa top-up (pending, paid, atau expired). |
+| 16 | `GET` | [`/topups`](/id/api-reference/list-topups) | Menampilkan top-up terbaru Anda. |
 
 ## Konvensi respons
 

@@ -18,7 +18,7 @@ Top-ups, charges, refunds and adjustments, newest first. Your credit balance and
 
 ## Response
 
-`type` is one of `topup`, `charge`, `refund`, `adjustment`. Charges are negative numbers. `order_id` is nullable (top-ups have no order).
+`type` is one of `topup`, `charge`, `refund`, `adjustment`. Charges are negative numbers. `order_id` is set for charges and refunds; top-ups carry `topup_id` instead.
 
 <RequestExample>
 

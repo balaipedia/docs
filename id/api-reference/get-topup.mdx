@@ -1,0 +1,22 @@
+---
+title: "Get top-up"
+description: "Memeriksa top-up (pending, paid, atau expired)."
+api: "GET https://orders.balaipedia.com/v1/topups/{id}"
+---
+
+Memeriksa satu top-up. `status` adalah `pending`, `paid`, atau `expired`. Poll endpoint ini setelah membayar untuk melihat `paid`. Lihat [Top up dengan USDT](/id/api-reference/create-topup) untuk aturannya.
+
+## Parameter path
+
+<ParamField path="id" type="string" required>
+  ID top-up yang dikembalikan oleh `POST /topups`, misalnya `TP-7K3M9QXA`.
+</ParamField>
+
+<RequestExample>
+
+```bash curl
+curl https://orders.balaipedia.com/v1/topups/TP-7K3M9QXA \
+  -H "Authorization: Bearer YOUR_KEY"
+```
+
+</RequestExample>

@@ -51,6 +51,14 @@
             ]
           },
           {
+            "group": "Top-ups",
+            "pages": [
+              "api-reference/create-topup",
+              "api-reference/get-topup",
+              "api-reference/list-topups"
+            ]
+          },
+          {
             "group": "Webhook endpoints",
             "pages": [
               "api-reference/set-webhook",
@@ -117,6 +125,14 @@
             "pages": [
               "id/api-reference/get-balance",
               "id/api-reference/list-transactions"
+            ]
+          },
+          {
+            "group": "Top-up",
+            "pages": [
+              "id/api-reference/create-topup",
+              "id/api-reference/get-topup",
+              "id/api-reference/list-topups"
             ]
           },
           {

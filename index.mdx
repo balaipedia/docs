@@ -29,6 +29,9 @@ Base URL: `https://orders.balaipedia.com/v1`. All requests and responses are JSO
 | 11 | `GET` | [`/ping`](/api-reference/ping) | Health check (no authentication). |
 | 12 | `GET` | [`/profile`](/api-reference/get-profile) | Read your email profile (sender name and contact). |
 | 13 | `POST` | [`/profile`](/api-reference/set-profile) | Set or clear your email profile. |
+| 14 | `POST` | [`/topups`](/api-reference/create-topup) | Start a USDT (BEP20) top-up. Returns the wallet address and exact amount to pay. |
+| 15 | `GET` | [`/topups/{id}`](/api-reference/get-topup) | Check a top-up (pending, paid or expired). |
+| 16 | `GET` | [`/topups`](/api-reference/list-topups) | List your recent top-ups. |
 
 ## Response conventions
 
