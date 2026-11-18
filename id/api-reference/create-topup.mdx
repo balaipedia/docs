@@ -9,7 +9,7 @@ Tambahkan kredit secara otomatis dengan membayar USDT di jaringan **BNB Smart Ch
 ## Body
 
 <ParamField body="amount" type="number" required>
-  Kredit yang ingin Anda terima. Untuk akun `USD`, `amount` dalam dolar dengan maksimal 2 desimal; untuk akun `IDR` dalam rupiah bulat.
+  Selalu dalam dolar AS (maksimal 2 desimal), baik untuk akun `USD` maupun `IDR`, dan sama dengan jumlah USDT yang Anda bayar. Akun `USD` dikreditkan sejumlah itu dalam dolar. Akun `IDR` dikreditkan dalam rupiah: USDT yang diterima dikalikan kurs hari ini (`exchange_rate.per_usdt`). Bentuk response sama untuk kedua jenis akun.
 </ParamField>
 
 ## Aturan
@@ -17,7 +17,7 @@ Tambahkan kredit secara otomatis dengan membayar USDT di jaringan **BNB Smart Ch
 - **Kirim tepat `pay.amount`, termasuk 3 desimal terakhir.** Digit tambahan kecil tersebut mengidentifikasi pembayaran Anda, dan ikut dikreditkan kepada Anda (`credit_on_payment` sudah termasuk digit tersebut). Jumlah yang berbeda tidak dapat dicocokkan secara otomatis.
 - **Bayar hanya ke `pay.address`, sebagai USDT di BEP20.** Jangan kirim ke alamat lain.
 - Jika exchange atau wallet Anda memotong biaya penarikan, tambahkan biaya tersebut agar `pay.amount` diterima penuh.
-- **Akun IDR:** kredit adalah USDT yang diterima dikalikan `exchange_rate.per_usdt`, yang ditetapkan saat top-up dibuat.
+- **Akun IDR:** `credit_on_payment` dan `credited` dalam rupiah (bilangan bulat), sama dengan USDT yang diterima dikalikan `exchange_rate.per_usdt`. Kurs yang dipakai adalah kurs hari ini dan ditetapkan saat top-up dibuat. Akun USD memiliki `exchange_rate: null` serta `credit_on_payment` / `credited` dalam dolar.
 - `status` adalah `pending`, `paid`, atau `expired`. Top-up berlaku selama **6 jam**; setelah itu menjadi `expired` dan tidak lagi diperiksa. Pembayaran yang dikirim setelah kedaluwarsa tidak dikreditkan secara otomatis (hubungi support dengan hash transaksi). Pembayaran yang dikirim sebelum kedaluwarsa tetap dikreditkan beberapa menit setelah dikonfirmasi on chain.
 - Membuat top-up dengan jumlah yang sama saat masih ada yang terbuka akan mengembalikan top-up yang sudah ada dengan `200`, bukan `201`. Maksimal 3 top-up dapat terbuka sekaligus.
 - Poll [`GET /topups/{id}`](/id/api-reference/get-topup) untuk melihat `paid`. Kredit juga muncul di [transaksi](/id/api-reference/list-transactions) dengan `topup_id`.
@@ -52,4 +52,13 @@ curl -X POST https://orders.balaipedia.com/v1/topups \
  "created_at":"...","expires_at":"...","paid_at":null,"credited":null,"tx":null}
 ```
 
+```json 201 Created (akun IDR)
+{"object":"topup","id":"TP-4H8N2WCD","status":"pending","currency":"IDR","amount_requested":25,
+ "pay":{"asset":"USDT","network":"BEP20","network_name":"BNB Smart Chain (BEP20)","address":"0x...","amount":"25.037000"},
+ "exchange_rate":{"currency":"IDR","per_usdt":16100},"credit_on_payment":403095,
+ "created_at":"...","expires_at":"...","paid_at":null,"credited":null,"tx":null}
+```
+
 </ResponseExample>
+
+Pada akun IDR, `amount_requested` dan `pay.amount` sama persis dengan akun USD; hanya kreditnya yang dalam rupiah, dihitung dengan kurs hari ini.

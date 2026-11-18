@@ -9,7 +9,7 @@ Add credit automatically by paying USDT on the **BNB Smart Chain (BEP20)** netwo
 ## Body
 
 <ParamField body="amount" type="number" required>
-  The credit you want to receive. For a `USD` account, `amount` is dollars with at most 2 decimals; for an `IDR` account it is whole rupiah.
+  Always in US dollars (at most 2 decimals), for `USD` and `IDR` accounts alike, and it is the same USDT amount you pay. A `USD` account is credited that amount in dollars. An `IDR` account is credited in rupiah: the USDT received multiplied by today's rate (`exchange_rate.per_usdt`). The response has the same shape for both account types.
 </ParamField>
 
 ## Rules
@@ -17,7 +17,7 @@ Add credit automatically by paying USDT on the **BNB Smart Chain (BEP20)** netwo
 - **Send exactly `pay.amount`, including the last 3 decimals.** The small extra digits identify your payment, and they are credited to you too (`credit_on_payment` already includes them). A different amount cannot be matched automatically.
 - **Pay only to `pay.address`, as USDT on BEP20.** Do not send to any other address.
 - If your exchange or wallet takes a withdrawal fee, add it on top so that the full `pay.amount` arrives.
-- **IDR accounts:** the credit is the USDT received multiplied by `exchange_rate.per_usdt`, which is fixed when the top-up is created.
+- **IDR accounts:** `credit_on_payment` and `credited` are in rupiah (whole numbers), equal to the USDT received multiplied by `exchange_rate.per_usdt`. The rate is today's rate and is fixed when the top-up is created. USD accounts have `exchange_rate: null` and `credit_on_payment` / `credited` in dollars.
 - `status` is `pending`, `paid` or `expired`. A top-up is valid for **6 hours**; after that it is `expired` and no longer checked. A payment sent after it expired is not credited automatically (contact support with the transaction hash). A payment sent before it expired is still credited a few minutes after it is confirmed on chain.
 - Creating a top-up with the same amount while one is still open returns the existing one with `200` instead of `201`. At most 3 top-ups can be open at once.
 - Poll [`GET /topups/{id}`](/api-reference/get-topup) to see `paid`. The credit also appears in [transactions](/api-reference/list-transactions) with `topup_id`.
@@ -52,4 +52,13 @@ curl -X POST https://orders.balaipedia.com/v1/topups \
  "created_at":"...","expires_at":"...","paid_at":null,"credited":null,"tx":null}
 ```
 
+```json 201 Created (IDR account)
+{"object":"topup","id":"TP-4H8N2WCD","status":"pending","currency":"IDR","amount_requested":25,
+ "pay":{"asset":"USDT","network":"BEP20","network_name":"BNB Smart Chain (BEP20)","address":"0x...","amount":"25.037000"},
+ "exchange_rate":{"currency":"IDR","per_usdt":16100},"credit_on_payment":403095,
+ "created_at":"...","expires_at":"...","paid_at":null,"credited":null,"tx":null}
+```
+
 </ResponseExample>
+
+On an IDR account, `amount_requested` and `pay.amount` are identical to a USD account; only the credit is in rupiah, calculated with today's rate.
