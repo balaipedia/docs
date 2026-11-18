@@ -15,6 +15,7 @@ Tambahkan kredit secara otomatis dengan membayar USDT di jaringan **BNB Smart Ch
 ## Aturan
 
 - **Kirim tepat `pay.amount`, termasuk 3 desimal terakhir.** Digit tambahan kecil tersebut mengidentifikasi pembayaran Anda, dan ikut dikreditkan kepada Anda (`credit_on_payment` sudah termasuk digit tersebut). Jumlah yang berbeda tidak dapat dicocokkan secara otomatis.
+- **Bayar hanya ke `pay.address`, sebagai USDT di BEP20.** Jangan kirim ke alamat lain.
 - Jika exchange atau wallet Anda memotong biaya penarikan, tambahkan biaya tersebut agar `pay.amount` diterima penuh.
 - **Akun IDR:** kredit adalah USDT yang diterima dikalikan `exchange_rate.per_usdt`, yang ditetapkan saat top-up dibuat.
 - `status` adalah `pending`, `paid`, atau `expired`. Top-up berlaku selama **6 jam**; setelah itu menjadi `expired` dan tidak lagi diperiksa. Pembayaran yang dikirim setelah kedaluwarsa tidak dikreditkan secara otomatis (hubungi support dengan hash transaksi). Pembayaran yang dikirim sebelum kedaluwarsa tetap dikreditkan beberapa menit setelah dikonfirmasi on chain.
@@ -46,7 +47,7 @@ curl -X POST https://orders.balaipedia.com/v1/topups \
 
 ```json 201 Created
 {"object":"topup","id":"TP-7K3M9QXA","status":"pending","currency":"USD","amount_requested":25,
- "pay":{"asset":"USDT","network":"BEP20","network_name":"BNB Smart Chain (BEP20)","address":"0x...","amount":"25.037000","token_contract":"0x..."},
+ "pay":{"asset":"USDT","network":"BEP20","network_name":"BNB Smart Chain (BEP20)","address":"0x...","amount":"25.037000"},
  "exchange_rate":null,"credit_on_payment":25.03,
  "created_at":"...","expires_at":"...","paid_at":null,"credited":null,"tx":null}
 ```
