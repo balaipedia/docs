@@ -12,7 +12,7 @@ Besides the API you can order and check your account from our Telegram bot. It i
     Open the bot link we send you, or open the bot and send the one-time bot code (`bpt_...`) that we emailed you. The code works once and expires 24 hours after it is created.
   </Step>
   <Step title="Check your account">
-    The bot greets you by name and shows your balance, price per order and remaining quota.
+    The bot greets you by name and shows your **Info** screen: balance, price per order, remaining quota, the email profile in use, your languages, and a short guide on how to order.
   </Step>
   <Step title="Lost the code?">
     Ask support for a new one. To switch account send `/keluar` (or `/logout`) first.
@@ -36,14 +36,15 @@ Besides the API you can order and check your account from our Telegram bot. It i
 
 | Command | Button | What it does |
 | --- | --- | --- |
-| `/menu` (also `/start`, `/help`) | Menu | Main menu with your balance and quota. |
-| `/riwayat` (`/history`) | Riwayat / History | Your recent orders and their status. |
-| `/saldo` (`/balance`) | Saldo / Balance | Balance and latest transactions. |
+| `/info` (also `/menu`, `/start`, `/help`) | Info | Account summary (balance, price per order, remaining quota, the email profile in use, bot and email language), how to order, and a guide to the menu. |
+| `/saldo` (`/balance`) | Saldo / Balance | Your balance and your latest 10 transactions (orders, top-ups, refunds, adjustments). |
+| `/deposit` (`/topup`) | Deposit | Top up your balance. Only shown when deposits are enabled for your account. Pick an amount for a USDT (BEP20) invoice, which is credited automatically, or type another amount. IDR accounts can also pay by QRIS (`/qris`), which the admin confirms manually. The **Deposit history** button lists your recent USDT and QRIS deposits with their status (successful, awaiting payment, awaiting admin, rejected or expired). Manual top-ups from the admin appear under **Saldo / Balance**. |
+| `/riwayat` (`/history`) | Riwayat / History | Your recent orders and their status. Tap an order number for its details; a delivered order also shows its processing time (from the moment it was created until it was confirmed delivered). |
 | `/bahasa` (`/language`) | Bahasa / Language | Choose the bot language and the language of the email sent to buyers. |
 | `/profil` (`/profile`) | Profil / Profile | Show or change your [email profile](/api-reference/set-profile) with buttons: **Change name**, **Change contact** (WhatsApp, Telegram or no contact), **Back to default**. After you tap one, send the value as a normal message. The default is the sender name Order Digital and no contact. Same rules and same setting as `POST /profile`. The typed forms still work too: `/profil nama Balai Pedia`, `/profil wa +62 812-3456-7890`, `/profil telegram balaipedia`, `/profil hapus`. |
 | `/batal` (`/cancel`) |  | Cancel the current action. |
 | `/keluar` (`/logout`) |  | Sign out and remove the keyboard. |
 
-The button keyboard stays visible and you can hide or show it with the keyboard icon next to the message box. Any other `/command` is answered with "Unknown command" followed by the menu. A message that is not a command and contains no valid email is answered with "No email detected. Send buyer emails, one per line, each a complete address with no spaces or commas." followed by an example.
+The button keyboard stays visible and you can hide or show it with the keyboard icon next to the message box. Any other `/command` is answered with "Unknown command" followed by your Info screen. A message that is not a command and contains no valid email is answered with "No email detected. Send buyer emails, one per line, each a complete address with no spaces or commas." followed by an example.
 
 Bot messages follow your bot-language setting (Indonesian or English). It is separate from the language of the email your buyer receives.

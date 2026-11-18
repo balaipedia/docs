@@ -12,7 +12,7 @@ Selain API, Anda dapat memesan dan memeriksa akun Anda dari Telegram bot kami. I
     Buka tautan bot yang kami kirimkan, atau buka bot dan kirimkan kode bot satu kali pakai (`bpt_...`) yang kami emailkan kepada Anda. Kode berfungsi sekali dan kedaluwarsa 24 jam setelah dibuat.
   </Step>
   <Step title="Periksa akun Anda">
-    Bot menyapa Anda dengan nama dan menampilkan saldo, harga per order, dan sisa kuota Anda.
+    Bot menyapa Anda dengan nama dan menampilkan layar **Info** Anda: saldo, harga per order, sisa kuota, profil email yang digunakan, bahasa Anda, dan panduan singkat cara memesan.
   </Step>
   <Step title="Kehilangan kode?">
     Minta support untuk kode baru. Untuk mengganti akun, kirim `/keluar` (atau `/logout`) terlebih dahulu.
@@ -36,14 +36,15 @@ Selain API, Anda dapat memesan dan memeriksa akun Anda dari Telegram bot kami. I
 
 | Perintah | Tombol | Fungsinya |
 | --- | --- | --- |
-| `/menu` (juga `/start`, `/help`) | Menu | Menu utama dengan saldo dan kuota Anda. |
-| `/riwayat` (`/history`) | Riwayat / History | Order terbaru Anda dan statusnya. |
-| `/saldo` (`/balance`) | Saldo / Balance | Saldo dan transaksi terbaru. |
+| `/info` (juga `/menu`, `/start`, `/help`) | Info | Ringkasan akun (saldo, harga per order, sisa kuota, profil email yang digunakan, bahasa bot dan email), cara memesan, dan panduan menu. |
+| `/saldo` (`/balance`) | Saldo / Balance | Saldo Anda dan 10 transaksi terakhir (order, top-up, refund, penyesuaian). |
+| `/deposit` (`/topup`) | Deposit | Top up saldo Anda. Hanya ditampilkan jika deposit diaktifkan untuk akun Anda. Pilih nominal untuk invoice USDT (BEP20), yang dikreditkan otomatis, atau ketik nominal lain. Akun IDR juga dapat membayar dengan QRIS (`/qris`), yang dikonfirmasi admin secara manual. Tombol **Deposit history** menampilkan deposit USDT dan QRIS terbaru Anda beserta statusnya (berhasil, menunggu pembayaran, menunggu admin, ditolak, atau kedaluwarsa). Top-up manual dari admin muncul di **Saldo / Balance**. |
+| `/riwayat` (`/history`) | Riwayat / History | Order terbaru Anda dan statusnya. Ketuk nomor order untuk melihat detailnya; order yang terkirim juga menampilkan waktu prosesnya (dari saat dibuat hingga dikonfirmasi terkirim). |
 | `/bahasa` (`/language`) | Bahasa / Language | Pilih bahasa bot dan bahasa email yang dikirim ke pembeli. |
 | `/profil` (`/profile`) | Profil / Profile | Menampilkan atau mengubah [profil email](/id/api-reference/set-profile) Anda dengan tombol: **Change name**, **Change contact** (WhatsApp, Telegram, atau tanpa kontak), **Back to default**. Setelah menekan salah satunya, kirim nilainya sebagai pesan biasa. Default-nya adalah nama pengirim Order Digital tanpa kontak. Aturan dan pengaturannya sama dengan `POST /profile`. Bentuk ketik juga tetap berfungsi: `/profil nama Balai Pedia`, `/profil wa +62 812-3456-7890`, `/profil telegram balaipedia`, `/profil hapus`. |
 | `/batal` (`/cancel`) |  | Membatalkan tindakan saat ini. |
 | `/keluar` (`/logout`) |  | Keluar dan menghapus keyboard. |
 
-Keyboard tombol tetap terlihat dan Anda dapat menyembunyikan atau menampilkannya dengan ikon keyboard di samping kotak pesan. Perintah `/` lainnya dijawab dengan "Unknown command" diikuti menu. Pesan yang bukan perintah dan tidak berisi email yang valid dijawab dengan "No email detected. Send buyer emails, one per line, each a complete address with no spaces or commas." diikuti sebuah contoh.
+Keyboard tombol tetap terlihat dan Anda dapat menyembunyikan atau menampilkannya dengan ikon keyboard di samping kotak pesan. Perintah `/` lainnya dijawab dengan "Unknown command" diikuti layar Info Anda. Pesan yang bukan perintah dan tidak berisi email yang valid dijawab dengan "No email detected. Send buyer emails, one per line, each a complete address with no spaces or commas." diikuti sebuah contoh.
 
 Pesan bot mengikuti pengaturan bahasa bot Anda (Indonesia atau Inggris). Ini terpisah dari bahasa email yang diterima pembeli Anda.
