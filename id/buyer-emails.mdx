@@ -8,8 +8,8 @@ Pembeli Anda menerima email ini dalam bahasa Indonesia (`"lang":"id"`) atau baha
 
 | Email | Kapan dikirim | Subjek (`id`) | Subjek (`en`) |
 | --- | --- | --- | --- |
-| A. Undangan | Tepat setelah order diproses. | Cara Bergabung ke Tim Canva Pro Anda | How to Join Your Canva Pro Team |
-| B. Pengingat: masa aktif telah berakhir | Otomatis, tak lama setelah masa aktif berakhir. | Masa Aktif Canva Pro Anda Telah Berakhir | Your Canva Pro Access Has Ended |
+| A. Undangan (tanpa profil) | Tepat setelah order diproses. | Cara Bergabung ke Tim Canva Pro Anda | How to Join Your Canva Pro Team |
+| B. Pengingat: masa aktif telah berakhir (tanpa profil) | Otomatis, tak lama setelah masa aktif berakhir. | Masa Aktif Canva Pro Anda Telah Berakhir | Your Canva Pro Access Has Ended |
 | C. Undangan dengan profil email Anda (WhatsApp) | Sama seperti A, setelah Anda mengatur nama pengirim dan kontak WhatsApp. | Cara Bergabung ke Tim Canva Pro Anda | How to Join Your Canva Pro Team |
 | D. Pengingat dengan profil email Anda (Telegram) | Sama seperti B, pengingat memakai profil yang sama (di sini dengan kontak Telegram). | Masa Aktif Canva Pro Anda Telah Berakhir | Your Canva Pro Access Has Ended |
 
@@ -21,8 +21,8 @@ Pilih email dan bahasa untuk melihat tampilan yang diterima pembeli. Nama pembel
 
 export const BuyerEmailPreview = ({ lang }) => {
   const UI = lang === "id"
-    ? { from: "Dari", subj: "Subjek", kinds: ["A. Undangan", "B. Telah berakhir", "C. Undangan + profil", "D. Pengingat + profil"], langs: { id: "Indonesia", en: "Inggris" } }
-    : { from: "From", subj: "Subject", kinds: ["A. Invitation", "B. Access has ended", "C. Invitation + profile", "D. Reminder + profile"], langs: { id: "Indonesian", en: "English" } };
+    ? { from: "Dari", subj: "Subjek", kinds: ["A. Undangan (tanpa profil)", "B. Telah berakhir (tanpa profil)", "C. Undangan + profil", "D. Pengingat + profil"], langs: { id: "Indonesia", en: "Inggris" } }
+    : { from: "From", subj: "Subject", kinds: ["A. Invitation (without profile)", "B. Access has ended (without profile)", "C. Invitation + profile", "D. Reminder + profile"], langs: { id: "Indonesian", en: "English" } };
   const KINDS = [
     { key: "A", type: "inv", prof: false },
     { key: "B", type: "ended", prof: false },
