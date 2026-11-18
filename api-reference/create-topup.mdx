@@ -14,7 +14,7 @@ Add credit automatically by paying USDT on the **BNB Smart Chain (BEP20)** netwo
 
 ## Rules
 
-- **Send exactly `pay.amount`, including the last 3 decimals.** The small extra digits identify your payment, and they are credited to you too (`credit_on_payment` already includes them). A different amount cannot be matched automatically.
+- **Send exactly `pay.amount`, including the cents.** The small extra cents (1 to 30) identify your payment, and they are credited to you in full: what you pay is what you get (`credit_on_payment` already includes them). A different amount cannot be matched automatically.
 - **Pay only to `pay.address`, as USDT on BEP20.** Do not send to any other address.
 - If your exchange or wallet takes a withdrawal fee, add it on top so that the full `pay.amount` arrives.
 - **IDR accounts:** `credit_on_payment` and `credited` are in rupiah (whole numbers), equal to the USDT received multiplied by `exchange_rate.per_usdt`. The rate is today's rate and is fixed when the top-up is created. USD accounts have `exchange_rate: null` and `credit_on_payment` / `credited` in dollars.
@@ -47,15 +47,15 @@ curl -X POST https://orders.balaipedia.com/v1/topups \
 
 ```json 201 Created
 {"object":"topup","id":"TP-7K3M9QXA","status":"pending","currency":"USD","amount_requested":25,
- "pay":{"asset":"USDT","network":"BEP20","network_name":"BNB Smart Chain (BEP20)","address":"0x...","amount":"25.037000"},
- "exchange_rate":null,"credit_on_payment":25.03,
+ "pay":{"asset":"USDT","network":"BEP20","network_name":"BNB Smart Chain (BEP20)","address":"0x...","amount":"25.17"},
+ "exchange_rate":null,"credit_on_payment":25.17,
  "created_at":"...","expires_at":"...","paid_at":null,"credited":null,"tx":null}
 ```
 
 ```json 201 Created (IDR account)
 {"object":"topup","id":"TP-4H8N2WCD","status":"pending","currency":"IDR","amount_requested":25,
- "pay":{"asset":"USDT","network":"BEP20","network_name":"BNB Smart Chain (BEP20)","address":"0x...","amount":"25.037000"},
- "exchange_rate":{"currency":"IDR","per_usdt":16100},"credit_on_payment":403095,
+ "pay":{"asset":"USDT","network":"BEP20","network_name":"BNB Smart Chain (BEP20)","address":"0x...","amount":"25.17"},
+ "exchange_rate":{"currency":"IDR","per_usdt":16100},"credit_on_payment":405237,
  "created_at":"...","expires_at":"...","paid_at":null,"credited":null,"tx":null}
 ```
 
