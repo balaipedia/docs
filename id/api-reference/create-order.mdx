@@ -4,26 +4,32 @@ description: "Buat order dan kirim undangan."
 api: "POST https://orders.balaipedia.com/v1/orders"
 ---
 
-Header: `Authorization: Bearer YOUR_KEY` dan `Content-Type: application/json` (wajib), serta `Idempotency-Key` (opsional, disarankan).
-
-<Note>
-  Header `Idempotency-Key` bersifat opsional, tetapi kami sangat menyarankan mengirimkannya pada setiap `POST /orders` agar order yang sama tidak pernah dibuat dua kali. Saat request timeout atau koneksi terputus, Anda tidak dapat mengetahui apakah order telah dibuat. Ulangi request dengan key dan email yang sama: Anda akan mendapatkan order yang sama kembali (header `Idempotent-Replayed: true`) dan tidak akan dikenakan biaya dua kali. Key diingat selama 24 jam. Menggunakan ulang key dengan email yang berbeda mengembalikan `422 idempotency_conflict`.
-</Note>
-
-<Warning>
-  Tanpa header tersebut, request tetap berfungsi dan pemeriksaan duplikat email (`409 duplicate_order`) tetap berlaku, tetapi kami tidak dapat mengenali percobaan ulang sebagai request yang sama. Secara khusus, mencoba ulang request yang timeout yang memiliki `allow_duplicate: true` dan tanpa key dapat membuat dan mengenakan biaya pada order kedua.
-</Warning>
+Mengirim satu undangan tim Canva Pro ke satu email pembeli. Order didebet sesuai harga Anda saat diterima.
 
 ## Header
 
+Wajib: `Authorization: Bearer YOUR_KEY` dan `Content-Type: application/json`.
+
 <ParamField header="Idempotency-Key" type="string">
-  Opsional, disarankan. 8-64 karakter (huruf, angka, `_ . : -`), misalnya UUID. Mencegah order yang sama dibuat dua kali saat Anda mencoba ulang. Simpan bersama order Anda agar percobaan ulang menggunakannya kembali.
+  Opsional, disarankan. 8-64 karakter (huruf, angka, `_ . : -`), misalnya UUID. Simpan bersama order Anda agar percobaan ulang memakai key yang sama.
+
+  - **Kenapa:** saat request timeout atau koneksi terputus, Anda tidak tahu apakah order sudah dibuat. Ulangi request dengan key dan email yang sama: Anda mendapat order yang sama kembali (header `Idempotent-Replayed: true`) dan tidak pernah didebet dua kali.
+  - Key diingat selama 24 jam.
+  - Memakai ulang key dengan email berbeda mengembalikan `422 idempotency_conflict`.
 </ParamField>
+
+<Warning>
+  Tanpa key, request tetap berfungsi dan pemeriksaan duplikat email (`409 duplicate_order`) tetap berlaku, tetapi kami tidak bisa mengenali percobaan ulang sebagai request yang sama. Mencoba ulang request yang timeout dengan `allow_duplicate: true` tanpa key dapat membuat dan mendebet order kedua.
+</Warning>
 
 ## Body
 
 <ParamField body="email" type="string" required>
-  Email pembeli. Satu alamat per order. Tulis sebagai alamat lengkap tanpa spasi, koma, atau titik koma, misalnya `buyer.name@gmail.com` (spasi sebelum atau sesudahnya diabaikan dan huruf diubah menjadi huruf kecil). Alamat dengan spasi atau koma di dalamnya, seperti `buyer @ gmail .com`, langsung ditolak dengan `422 email_rejected` (`reason: "invalid_format"`); dua alamat menghasilkan `400 invalid_request`. Untuk memesan bagi beberapa pembeli sekaligus (hingga 10), gunakan [`POST /orders/bulk`](/id/api-reference/create-orders-bulk).
+  Email pembeli. Satu alamat per order, misalnya `buyer.name@gmail.com`.
+
+  - Tulis alamat lengkap tanpa spasi, koma, atau titik koma. Spasi sebelum atau sesudahnya diabaikan dan huruf diubah menjadi huruf kecil.
+  - Alamat dengan spasi atau koma di dalamnya, seperti `buyer @ gmail .com`, langsung ditolak dengan `422 email_rejected` (`reason: "invalid_format"`).
+  - Dua alamat menghasilkan `400 invalid_request`. Untuk memesan bagi beberapa pembeli sekaligus (hingga 10), gunakan [`POST /orders/bulk`](/id/api-reference/create-orders-bulk).
 </ParamField>
 
 <ParamField body="name" type="string">
@@ -60,13 +66,10 @@ Anggap `processing` dan `pending` sebagai "sedang berjalan" dan bertindaklah han
 
 ## Ditolak oleh validasi, `422` (tidak ada biaya)
 
-```json
-{"error":{"code":"email_rejected","message":"The email address was rejected by validation. No credit was charged.","reason":"mailbox_full","note":"The recipient's mailbox is full. Ask them to free up space, then retry after 3 hours.","request_id":"req_..."}}
-```
+`422` berarti email langsung ditolak dan tidak ada yang didebet (lihat contoh `422 Rejected`). Beberapa masalah baru ditemukan setelah order diterima; order tersebut berakhir sebagai `error` dengan `note` dan refund. Tangani keduanya.
 
-`reason` adalah kode stabil yang dapat Anda gunakan untuk percabangan; `note` adalah penjelasan singkat yang dapat dibaca manusia yang dapat Anda catat atau tampilkan.
-
-`422` berarti email langsung ditolak dan tidak ada yang didebet. Beberapa masalah baru ditemukan setelah order diterima; order tersebut berakhir sebagai `error` dengan `note` dan refund. Tangani keduanya.
+- `reason`: kode stabil untuk percabangan (tabel di bawah).
+- `note`: penjelasan singkat yang bisa Anda catat atau tampilkan.
 
 | reason | Arti |
 | --- | --- |
@@ -84,19 +87,67 @@ Anggap `processing` dan `pending` sebagai "sedang berjalan" dan bertindaklah han
 
 Setiap kegagalan menggunakan body yang sama, `{"error":{"code","message","request_id"}}`. Lakukan percabangan berdasarkan `code`, bukan `message`. Request yang gagal tidak pernah membuat order. Kredit hanya dikenakan pada `201`.
 
-| HTTP | code | Contoh body | Tindakan |
-| --- | --- | --- | --- |
-| 400 | `invalid_request` | `{"error":{"code":"invalid_request","message":"Only one email address per order.","request_id":"req_..."}}` | Satu email per request: tidak ada bulk, tidak ada daftar, dan tidak ada alamat yang dipisahkan koma, titik koma, atau spasi. Pesan lain: `"email" is required.`, `"email" must be a string.`, `"lang" must be "id" or "en".`, `"allow_duplicate" must be a boolean.`, `Request body must be a JSON object.`, `Idempotency-Key must be 8-64 chars (letters, digits, _ . : -).` Perbaiki request, jangan coba ulang tanpa perubahan. |
-| 400 | `invalid_json` | `{"error":{"code":"invalid_json","message":"Request body must be valid JSON.","request_id":"req_..."}}` | Kirim JSON yang valid dengan `Content-Type: application/json`. |
-| 401 | `unauthorized` | `{"error":{"code":"unauthorized","message":"Missing or invalid API key.","request_id":"req_..."}}` | Periksa header `Authorization: Bearer ...` dan key-nya. |
-| 402 | `insufficient_credit` | `{"error":{"code":"insufficient_credit","message":"Your credit balance is too low for this order.","balance":0,"required":0.15,"currency":"USD","request_id":"req_..."}}` | Isi ulang saldo, lalu kirim request lagi. Tidak ada yang dikenakan biaya. |
-| 409 | `duplicate_order` | `{"error":{"code":"duplicate_order","message":"This email already received an invitation recently. Set \"allow_duplicate\": true to send again (charged).","request_id":"req_..."}}` | Email yang sama baru-baru ini dipesan. Kirim `"allow_duplicate": true` hanya jika Anda benar-benar ingin mengirim (dan dikenakan biaya) lagi. Beberapa duplikat tidak dapat dikirim ulang sama sekali dan memerlukan bantuan support. |
-| 409 | `request_in_progress` | `{"error":{"code":"request_in_progress","message":"A request with this Idempotency-Key is still being processed.","request_id":"req_..."}}` | Tunggu beberapa detik dan kirim request yang sama dengan key yang sama lagi. |
-| 422 | `email_rejected` | lihat di atas | Tidak dikenakan biaya. Minta pembeli untuk memberikan alamat yang benar. |
-| 422 | `idempotency_conflict` | `{"error":{"code":"idempotency_conflict","message":"This Idempotency-Key was already used with a different email.","request_id":"req_..."}}` | Gunakan key baru untuk email yang berbeda. |
-| 429 | `rate_limited` | `{"error":{"code":"rate_limited","message":"Too many requests. Slow down.","request_id":"req_..."}}` | Tunggu selama jumlah detik yang tertera di header `Retry-After`, lalu coba ulang. |
-| 503 | `temporarily_unavailable` | `{"error":{"code":"temporarily_unavailable","message":"We could not process this order right now. No credit was charged. Please retry shortly.","request_id":"req_..."}}` | Header `Retry-After: 30`. Coba ulang setelah itu, dengan `Idempotency-Key` yang sama jika Anda mengirimkannya. |
-| 503 | `out_of_capacity` | `{"error":{"code":"out_of_capacity","message":"We are temporarily out of capacity for new orders. No credit was charged. Please retry later.","request_id":"req_..."}}` | Tidak dikenakan biaya, dan tidak ada order yang dibuat. Kami belum dapat memenuhi order baru saat ini. Error ini juga bisa diterima oleh salah satu dari beberapa order yang dikirim pada saat bersamaan, ketika kapasitas terakhir baru saja diambil oleh order lain (dari API atau bot Telegram): setiap order diputuskan sendiri-sendiri, jadi request yang menerima error ini hanya tidak kebagian tempat. Header `Retry-After: 300`: tunggu minimal selama itu, lalu coba ulang dengan `Idempotency-Key` yang sama jika Anda mengirimkannya. Jangan coba ulang secara beruntun tanpa jeda. |
+| HTTP | code | Tindakan |
+| --- | --- | --- |
+| 400 | `invalid_request` | Perbaiki request, jangan coba ulang tanpa perubahan. Satu email per request: tidak ada bulk, tidak ada daftar, dan tidak ada alamat yang dipisahkan koma, titik koma, atau spasi. |
+| 400 | `invalid_json` | Kirim JSON yang valid dengan `Content-Type: application/json`. |
+| 401 | `unauthorized` | Periksa header `Authorization: Bearer ...` dan key-nya. |
+| 402 | `insufficient_credit` | Isi ulang saldo, lalu kirim request lagi. Tidak ada yang dikenakan biaya. |
+| 409 | `duplicate_order` | Email yang sama baru-baru ini dipesan. Kirim `"allow_duplicate": true` hanya jika Anda benar-benar ingin mengirim (dan dikenakan biaya) lagi. Beberapa duplikat tidak dapat dikirim ulang sama sekali dan memerlukan bantuan support. |
+| 409 | `request_in_progress` | Tunggu beberapa detik dan kirim request yang sama dengan key yang sama lagi. |
+| 422 | `email_rejected` | Tidak dikenakan biaya. Minta pembeli untuk memberikan alamat yang benar. |
+| 422 | `idempotency_conflict` | Gunakan key baru untuk email yang berbeda. |
+| 429 | `rate_limited` | Tunggu selama jumlah detik di header `Retry-After`, lalu coba ulang. |
+| 503 | `temporarily_unavailable` | Tidak dikenakan biaya. Header `Retry-After: 30`. Coba ulang setelah itu, dengan `Idempotency-Key` yang sama jika Anda mengirimkannya. |
+| 503 | `out_of_capacity` | Tidak dikenakan biaya, tidak ada order yang dibuat. Header `Retry-After: 300`: tunggu minimal selama itu, lalu coba ulang dengan `Idempotency-Key` yang sama jika Anda mengirimkannya. Jangan coba ulang beruntun tanpa jeda. |
+
+<Accordion title="Contoh body error">
+  ```json 400 invalid_request
+  {"error":{"code":"invalid_request","message":"Only one email address per order.","request_id":"req_..."}}
+  ```
+
+  Pesan `invalid_request` lainnya: `"email" is required.`, `"email" must be a string.`, `"lang" must be "id" or "en".`, `"allow_duplicate" must be a boolean.`, `Request body must be a JSON object.`, `Idempotency-Key must be 8-64 chars (letters, digits, _ . : -).`
+
+  ```json 400 invalid_json
+  {"error":{"code":"invalid_json","message":"Request body must be valid JSON.","request_id":"req_..."}}
+  ```
+
+  ```json 401 unauthorized
+  {"error":{"code":"unauthorized","message":"Missing or invalid API key.","request_id":"req_..."}}
+  ```
+
+  ```json 402 insufficient_credit
+  {"error":{"code":"insufficient_credit","message":"Your credit balance is too low for this order.","balance":0,"required":0.15,"currency":"USD","request_id":"req_..."}}
+  ```
+
+  ```json 409 duplicate_order
+  {"error":{"code":"duplicate_order","message":"This email already received an invitation recently. Set \"allow_duplicate\": true to send again (charged).","request_id":"req_..."}}
+  ```
+
+  ```json 409 request_in_progress
+  {"error":{"code":"request_in_progress","message":"A request with this Idempotency-Key is still being processed.","request_id":"req_..."}}
+  ```
+
+  ```json 422 idempotency_conflict
+  {"error":{"code":"idempotency_conflict","message":"This Idempotency-Key was already used with a different email.","request_id":"req_..."}}
+  ```
+
+  ```json 429 rate_limited
+  {"error":{"code":"rate_limited","message":"Too many requests. Slow down.","request_id":"req_..."}}
+  ```
+
+  ```json 503 temporarily_unavailable
+  {"error":{"code":"temporarily_unavailable","message":"We could not process this order right now. No credit was charged. Please retry shortly.","request_id":"req_..."}}
+  ```
+
+  ```json 503 out_of_capacity
+  {"error":{"code":"out_of_capacity","message":"We are temporarily out of capacity for new orders. No credit was charged. Please retry later.","request_id":"req_..."}}
+  ```
+</Accordion>
+
+<Note>
+  **Tentang `out_of_capacity`:** kami belum dapat memenuhi order baru saat ini. Error ini juga bisa diterima oleh salah satu dari beberapa order yang dikirim bersamaan, ketika kapasitas terakhir baru saja diambil order lain (dari API atau bot Telegram). Setiap order diputuskan sendiri-sendiri, jadi request yang menerima error ini hanya tidak kebagian tempat.
+</Note>
 
 Status lainnya (`403`, `404`, `405`, `413`, `500`) tercantum di bawah [Errors](/id/errors).
 
