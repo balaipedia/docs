@@ -77,7 +77,7 @@ Anggap `processing` dan `pending` sebagai "sedang berjalan" dan bertindaklah han
 | `typo_domain` | Kemungkinan typo pada domain; `suggestion` mungkin berisi alamat yang diperbaiki. |
 | `domain_no_mail` | Domain tidak ada atau tidak menerima email. |
 | `mailbox_not_found` | Mailbox tidak ada. |
-| `mailbox_full` | Kotak masuk penerima penuh. Ini bukan blokir permanen: minta penerima mengosongkan ruang, lalu coba lagi order yang sama setelah 3 jam. |
+| `mailbox_full` | Kotak masuk penerima penuh. Ini bukan blokir permanen: minta penerima mengosongkan ruang, lalu coba lagi order yang sama setelah 30 menit. |
 | `disposable_email` | Layanan email sementara / sekali pakai. |
 | `address_undeliverable` | Alamat ini sebelumnya gagal atau berada dalam daftar blokir kami. |
 | `high_risk` | Ditandai sebagai berisiko (spam trap, penyalahgunaan, do-not-mail). |
@@ -237,7 +237,7 @@ except ValueError: data = None   # a 5xx from the platform may not be JSON: retr
 ```
 
 ```json 422 Rejected
-{"error":{"code":"email_rejected","message":"The email address was rejected by validation. No credit was charged.","reason":"mailbox_full","note":"The recipient's mailbox is full. Ask them to free up space, then retry after 3 hours.","request_id":"req_..."}}
+{"error":{"code":"email_rejected","message":"The email address was rejected by validation. No credit was charged.","reason":"mailbox_full","note":"The recipient's mailbox is full. Ask them to free up space, then retry after 30 minutes.","request_id":"req_..."}}
 ```
 
 </ResponseExample>

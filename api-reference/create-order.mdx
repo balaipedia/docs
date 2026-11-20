@@ -77,7 +77,7 @@ A `422` means the email was rejected right away and nothing was charged (see the
 | `typo_domain` | Likely typo in the domain; `suggestion` may contain the corrected address. |
 | `domain_no_mail` | Domain does not exist or does not accept email. |
 | `mailbox_not_found` | The mailbox does not exist. |
-| `mailbox_full` | The recipient's inbox is full. Not a permanent block: ask the recipient to free up space and retry the same order after 3 hours. |
+| `mailbox_full` | The recipient's inbox is full. Not a permanent block: ask the recipient to free up space and retry the same order after 30 minutes. |
 | `disposable_email` | Temporary / disposable email service. |
 | `address_undeliverable` | This address previously failed or is on our block list. |
 | `high_risk` | Flagged as risky (spam trap, abuse, do-not-mail). |
@@ -237,7 +237,7 @@ except ValueError: data = None   # a 5xx from the platform may not be JSON: retr
 ```
 
 ```json 422 Rejected
-{"error":{"code":"email_rejected","message":"The email address was rejected by validation. No credit was charged.","reason":"mailbox_full","note":"The recipient's mailbox is full. Ask them to free up space, then retry after 3 hours.","request_id":"req_..."}}
+{"error":{"code":"email_rejected","message":"The email address was rejected by validation. No credit was charged.","reason":"mailbox_full","note":"The recipient's mailbox is full. Ask them to free up space, then retry after 30 minutes.","request_id":"req_..."}}
 ```
 
 </ResponseExample>
