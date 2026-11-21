@@ -43,7 +43,7 @@ Returns one order created within the last 60 days (see [Data retention](/data-re
 </ResponseField>
 
 <ResponseField name="completed_at" type="string | null">
-  When the status became final; `null` while not final.
+  When the current final status was set; `null` while not final.
 </ResponseField>
 
 <ResponseField name="expires_at" type="string | null">
@@ -59,7 +59,7 @@ Returns one order created within the last 60 days (see [Data retention](/data-re
 </ResponseField>
 
 <ResponseField name="refunded" type="boolean">
-  Whether the charge was refunded. Only an `error` order can be refunded; a `success` order is never refunded or changed afterwards.
+  Whether the charge was returned. An `error` order can be refunded automatically; an admin can also refund an order manually. A manual refund sets this to `true` and, if the order was `success`, changes its status to `error`.
 </ResponseField>
 
 <ResponseField name="balance" type="number">
@@ -73,9 +73,9 @@ Returns one order created within the last 60 days (see [Data retention](/data-re
 | `pending` | Delivery is temporarily delayed and we keep retrying. Ends as `success`, or `error` if still undelivered after 72 hours. | No |
 | `processing` | Accepted and charged. Being sent (normally seconds). Every new order starts here. | No |
 | `success` | The invitation email was accepted by the recipient's mail server. (It does not mean the buyer has already joined.) | Yes |
-| `error` | The invitation could not be delivered, for any reason. We handle the cause on our side; check `refunded` to see whether the charge was returned. | Yes |
+| `error` | The invitation could not be delivered, or an admin refunded the order manually. We handle the cause on our side; check `refunded` to see whether the charge was returned. | Yes |
 
-`success` and `error` are **final**. Once an order reaches one of them its status never changes again, and you receive exactly one final event for it. Only `pending` and `processing` orders can still move on, and they end as `success` or `error`. If we find a problem with an order after it was reported as `success`, we handle it with you and the buyer directly; the order itself stays unchanged.
+`success` and `error` are **final**. Delivery status does not change after an order reaches one of them. The only exception is an admin manual refund: a successful order can be refunded, which changes it to `error` with `refunded: true` and sends a later `order.error` event.
 
 There are only these four statuses. Every failure is reported as `error`, and `note` tells you why, so an order never fails without an explanation:
 
@@ -83,7 +83,7 @@ There are only these four statuses. Every failure is reported as `error`, and `n
 {"id":"BP-7K3M9QXA","object":"order","status":"error","note":"The recipient's mailbox is full.","refunded":true, ...}
 ```
 
-Possible notes for `error` orders: the recipient's mailbox is full or does not exist; the email domain cannot receive email; the recipient's mail server rejected the email; the recipient reported the email as spam; the email could not be delivered within 72 hours; this email already received an invitation recently; we could not send the order right now (the credit is refunded, please retry shortly); or a generic delivery failure.
+Possible notes for `error` orders: the recipient's mailbox is full or does not exist; the email domain cannot receive email; the recipient's mail server rejected the email; the recipient reported the email as spam; the email could not be delivered within 72 hours; this email already received an invitation recently; we could not send the order right now (the credit is refunded, please retry shortly); the order was refunded manually by the admin; or a generic delivery failure.
 
 <RequestExample>
 

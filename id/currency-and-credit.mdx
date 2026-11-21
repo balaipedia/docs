@@ -24,5 +24,6 @@ Anda mengisi saldo kredit dalam mata uang akun Anda. Setiap order membebankan ha
 
 - Jika alamat email **langsung ditolak** (format tidak valid, typo pada domain, alamat yang diketahui bermasalah atau email sekali pakai) request gagal dengan `422`, tidak ada order yang dibuat dan **tidak ada kredit yang didebet**.
 - Jika order yang sudah diterima berakhir sebagai `error` (misalnya mailbox tidak ada atau penuh), biayanya **dikembalikan secara otomatis** (`refunded: true`). Lihat [Cara order diproses](/id/api-reference/create-order#cara-order-diproses).
+- Jika ada masalah dengan sebuah order, admin juga dapat me-refund-nya secara manual. Biaya dikembalikan (`refunded: true`); order yang `success` menjadi `error`.
 - Jika kami tidak dapat memproses order karena alasan internal (`503`), kredit juga tidak didebet.
 - Jika saldo Anda terlalu rendah, request gagal dengan `402`.

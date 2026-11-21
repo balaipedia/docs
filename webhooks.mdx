@@ -14,7 +14,7 @@ Instead of polling, register an HTTPS endpoint (public host, port 443). We POST 
 
 ## Events and payload
 
-Events: `order.pending`, `order.success`, `order.error` (one per status change, named after the new status). After `order.success` or `order.error` no further event is sent for that order. The `data` object is the [order](/api-reference/get-order#the-order-object), including `amount` and `currency`. Because orders are processed in the background, an `order.error` (with `refunded: true`) can arrive within seconds after the `201` response.
+Events: `order.pending`, `order.success`, `order.error` (one per status change, named after the new status). After `order.success` or `order.error` no further delivery event is sent for that order, except a later `order.error` when an admin refunds a successful order manually. The `data` object is the [order](/api-reference/get-order#the-order-object), including `amount`, `currency`, and `refunded`. Because orders are processed in the background, an `order.error` (with `refunded: true`) can arrive within seconds after the `201` response.
 
 ```http
 POST https://example.com/hooks/orders

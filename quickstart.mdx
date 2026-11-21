@@ -65,4 +65,6 @@ POST /orders  →  201 processing  →  order.success   (invitation accepted by 
                                     or  order.error     (not delivered; charge refunded automatically)
 ```
 
+If there is a problem with an order, an admin can refund it manually. The charge is returned to your credit (`refunded: true`); if the order was `success`, it becomes `error`.
+
 Emails that are rejected right away never become an order: you get an immediate `422` and nothing is charged. See also [Testing your integration](/testing).

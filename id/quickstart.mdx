@@ -65,4 +65,6 @@ POST /orders  →  201 processing  →  order.success   (invitation accepted by 
                                     or  order.error     (not delivered; charge refunded automatically)
 ```
 
+Jika ada masalah dengan sebuah order, admin dapat me-refund-nya secara manual. Biaya dikembalikan ke kredit Anda (`refunded: true`); jika order berstatus `success`, statusnya menjadi `error`.
+
 Email yang langsung ditolak tidak pernah menjadi order: Anda langsung mendapat `422` dan tidak ada yang didebet. Lihat juga [Menguji integrasi Anda](/id/testing).
